@@ -1,0 +1,10 @@
+- [x] General market analysis
+- [x] Software market analysis
+- [x] Extract technologies from Siemens, Project01, Project02, and Select Dr. Mohammed Ibrahim projects
+- [x] Incorperate these technologies in software research on arxiv
+- [x] Repeat genral literature review for openalex
+- [x] Repeat software literature review for openalex
+- [x] Craft a unified market analysis report with professional-grade diagrams and latex
+- [x] Craft unified general literature review
+- [x] Craft unified software literature review
+- [x] Craft high-level design report
