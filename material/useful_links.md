@@ -38,6 +38,12 @@
 
 ### Fully Open-Source
 
+#### Asimov V1
+- [BOM](https://docs.google.com/spreadsheets/d/1jjg_APakSDXTwAB9CK5qweG_mqn4gfzw/edit?usp=drivesdk&ouid=111167794619268715890&rtpof=true&sd=true)
+- [Menlo](https://menlo.ai/asimov-1)
+
+Already-pressurized air is provided to the system. I just need to store it and transmit it. Focus on the pneumatic system itself, not the drive nor breaking.
+
 #### Reachy 2 (Pollen Robotics)
 - [Main product page](https://robozaps.com/products/reachy-2)
 - [Scribd — Reachy2 Dual Arms datasheet](https://www.scribd.com/document/839112213/Reachy2-Dual-arms-Datasheet)
