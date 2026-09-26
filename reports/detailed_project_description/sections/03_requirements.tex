@@ -1,0 +1,178 @@
+\section{Engineering Requirements Specification}
+\label{sec:requirements}
+
+\subsection{Formal Requirements Classification under VDI 2206}
+The task clarification and conceptual design of complex mechatronic systems must proceed from a structured, unambiguous specification of engineering requirements. In accordance with the VDI~2206 design guideline (\emph{Entwicklungsmethodik f{\"u}r mechatronische und cyber-physische Systeme})~\cite{vdi2206}, qualitative user expectations, operational mission profiles, and regulatory constraints are systematically converted into a formal engineering requirements list (\emph{Anforderungsliste}). This document serves as the inviolable baseline against which all downstream architectural, mechanical, electrical, and algorithmic decisions are evaluated and validated across the macro-cycles and micro-cycles of the V-model.
+
+To enforce engineering rigor and avoid premature design convergence, each requirement is categorized according to two formal classification axes:
+\begin{enumerate}[leftmargin=1.5em]
+  \item \textbf{Requirement Severity Type:}
+  \begin{itemize}[leftmargin=1.2em]
+    \item \textbf{Fixed Requirement (\emph{Festforderung}, FF / Demand):} Inviolable boundary constraints that must be fulfilled unconditionally under all nominal and degraded operating conditions. An architectural concept or hardware implementation that violates a single fixed requirement is technically disqualified from consideration.
+    \item \textbf{Range Requirement (\emph{Bereichsforderung}, BF / Wish):} Performance criteria that specify target bands with defined acceptable minimal baselines and optimal target goals. The engineering embodiment must satisfy the lower bound, while design optimizations and trade-off studies seek to maximize performance toward the upper target.
+  \end{itemize}
+  \item \textbf{Criterion Verification Characteristic:}
+  \begin{itemize}[leftmargin=1.2em]
+    \item \textbf{Quantitative (\emph{quan}):} Physical and operational parameters defined by numerical metrics with standard SI engineering units. These criteria are empirically verifiable via finite element analysis (FEA), multi-body dynamic simulation, coordinate measuring, calibrated physical instruments (e.g., laser trackers, dynamometers, oscilloscopes), or sensor telemetry.
+    \item \textbf{Qualitative (\emph{qual}):} Functional, topological, architectural, or ergonomic properties that cannot be expressed as a continuous scalar metric. Verification is performed through formal design audits, architectural code compliance reviews, protocol packet analyzers, interface compliance testing, or safety certification checklists.
+  \end{itemize}
+\end{enumerate}
+
+By anchoring these constraints to the standardized operational benchmarks of domestic and service robotics---most notably the RoboCup@Home General Purpose Service Robot (GPSR), Table Clearing, and Articulated Fixture challenges~\cite{robocupathome}---the resulting specification directly reflects the physical realities of human-centric indoor spaces.
+
+\subsection{Comprehensive Engineering Requirements List (\emph{Anforderungsliste})}
+Table~\ref{tab:anforderungsliste} details the complete engineering requirements specification governing the modular semi-humanoid robot platform across geometry, kinematics, dynamics, electrical power, embedded control, sensing, software, human-machine interface (HMI), and collaborative safety.
+
+\begin{small}
+\setlength{\tabcolsep}{4pt}
+\begin{longtable}{@{}p{0.06\textwidth}p{0.19\textwidth}p{0.25\textwidth}p{0.06\textwidth}p{0.06\textwidth}p{0.25\textwidth}@{}}
+\caption{Comprehensive engineering requirements list (\emph{Anforderungsliste}) for the modular semi-humanoid robot platform in accordance with VDI 2206.}
+\label{tab:anforderungsliste}\\
+\toprule
+\textbf{ID} & \textbf{Requirement Parameter} & \textbf{Target Specification} & \textbf{Type} & \textbf{Char.} & \textbf{Verification Method} \\
+\midrule
+\endfirsthead
+\multicolumn{6}{c}{{\bfseries Table \thetable\ continued from previous page}} \\
+\toprule
+\textbf{ID} & \textbf{Requirement Parameter} & \textbf{Target Specification} & \textbf{Type} & \textbf{Char.} & \textbf{Verification Method} \\
+\midrule
+\endhead
+\midrule
+\multicolumn{6}{r}{{Continued on next page\dots}} \\
+\endfoot
+\bottomrule
+\endlastfoot
+
+\multicolumn{6}{@{}l}{\textbf{1. Geometry and Mass (\emph{Geometrie und Masse})}} \\
+\midrule
+G01 & Base Footprint Envelope & Diameter / width envelope $\le 550\text{ mm}$ & BF & quan & Dimensional CAD audit \& chassis jig check \\
+G02 & Doorway Passage Clearance & Passage through doorways $\ge 750\text{ mm}$ (clearance margin $\ge 100\text{ mm}$/side) & FF & quan & Physical passage trial in benchmark doorway arena \\
+G03 & Overall Platform Height & Standing height $1200\text{--}1300\text{ mm}$ (nominal home configuration) & BF & quan & Vertical height measurement from floor plane \\
+G04 & Total System Mass & Total wet mass $\le 55\text{ kg}$ (including battery \& all payloads) & FF & quan & Calibrated multi-point platform scale measurement \\
+\midrule
+
+\multicolumn{6}{@{}l}{\textbf{2. Kinematics and Workspace (\emph{Kinematik und Arbeitsraum})}} \\
+\midrule
+K01 & Total Active Degrees of Freedom & Total active $\text{DoF} = 18$ (Base: 2, Arms: $2 \times 6 = 12$, Grippers: 2, Head: 2) & FF & quan & Joint topological audit \& actuator allocation check \\
+K02 & Mobile Base Kinematic Drive & Differential drive (2 active motorized wheels + 2 passive spring-loaded casters) & FF & qual & Kinematic dead-reckoning test \& zero-radius spin \\
+K03 & Upper-Body Arm Topology & Dual 6-DoF articulated serial chains (anthropomorphic shoulder-elbow-wrist) & FF & qual & Forward/inverse kinematic Jacobian rank audit \\
+K04 & Vertical Manipulation Reach & Continuous vertical reach envelope $500\text{--}1350\text{ mm}$ above finished floor level & FF & quan & 3D coordinate measuring of end-effector flange \\
+K05 & Horizontal Bimanual Span & Maximum bimanual arm tip-to-tip span $\ge 1200\text{ mm}$ ($1200\text{--}1400\text{ mm}$) & BF & quan & Cartesian boundary mapping in simulation \& rig \\
+K06 & Active Head Perception Unit & 2-DoF pan-tilt neck (Pan: $\pm 90^\circ$, Tilt: $+45^\circ / -30^\circ$) & BF & quan & Digital goniometer joint angle sweep verification \\
+\midrule
+
+\multicolumn{6}{@{}l}{\textbf{3. Dynamics and Manipulation Performance (\emph{Dynamik und Manipulation})}} \\
+\midrule
+D01 & Manipulator Payload Capacity & Continuous payload $\ge 1.0\text{ kg}$/arm nominal (peak/holding $\ge 1.5\text{ kg}$) & FF & quan & Static load-holding dynamometer test at reach \\
+D02 & End-Effector Clamping & Dual 2-finger parallel stroke $0\text{--}85\text{ mm}$, clamping force $15\text{--}35\text{ N}$ & FF & quan & Calibrated load cell pinch test with silicone pads \\
+D03 & Maximum Base Transit Speed & Regulated indoor linear velocity $v_{\text{base}} = 0.6\text{--}0.8\text{ m/s}$ on level floor & BF & quan & Laser-timed transit; stopping distance $\le 0.4\text{ m}$ \\
+D04 & Cartesian TCP Repeatability & Unidirectional repeatability $\le \pm 2.0\text{ mm}$ under nominal $1.0\text{ kg}$ payload & BF & quan & Multi-cycle dial-indicator / laser tracker test \\
+D05 & Settling Time \& Damping & Re-positioning settling time $t_{\text{settling}} \le 0.5\text{ s}$ (damping ratio $\zeta \ge 0.6$) & BF & quan & Flange accelerometer vibration decay recording \\
+\midrule
+
+\multicolumn{6}{@{}l}{\textbf{4. Electrical and Power Infrastructure (\emph{Elektrische Energieversorgung})}} \\
+\midrule
+E01 & System DC Bus Voltage & Nominal $24\text{ V DC}$ bus ($8\text{S LiFePO}_4$, operational band $20.0\text{--}28.8\text{ V}$) & FF & quan & Oscilloscope \& multi-meter bus voltage logging \\
+E02 & Operational Run-Time & Run-time $\ge 3.0\text{ h}$ under continuous mixed operational duty cycle & BF & quan & Automated cyclic mobile manipulation test \\
+E03 & Emergency Disconnect Latency & Hardware E-stop disconnect response time $\le 10\text{ ms}$ on actuator power rails & FF & quan & Oscilloscope capture of contactor de-energization \\
+E04 & Power Rail Isolation & Galvanically isolated logic rails ($19\text{V}$ GPU, $12\text{V}$ sensors, $5\text{V}/3.3\text{V}$ logic) & FF & qual & Common-mode noise FFT analysis ($>40\text{ dB}$ reject) \\
+\midrule
+
+\multicolumn{6}{@{}l}{\textbf{5. Embedded Control and Communication (\emph{Steuerung und Kommunikation})}} \\
+\midrule
+C01 & Real-Time Joint Control Rate & Joint-level closed-loop frequency $\ge 500\text{ Hz}$ (target: $1000\text{ Hz}$, jitter $\le 50\ \mu\text{s}$) & FF & quan & `PREEMPT\_RT` kernel cyclic latency benchmark \\
+C02 & Fieldbus Communication Bus & CAN FD / CAN 2.0B fieldbus ($\ge 1\text{ Mbps}$, bus load $\le 65\%$) & FF & qual & Bus analyzer packet inspection \& CRC error check \\
+C03 & Device-Level Abstraction & Modular device abstraction for base, arm, neck, and gripper subsystems & FF & qual & Standalone sub-assembly hardware-in-the-loop test \\
+\midrule
+
+\multicolumn{6}{@{}l}{\textbf{6. Sensing and Perception (\emph{Sensorik und Umgebungserfassung})}} \\
+\midrule
+S01 & Base Obstacle Sensing & $360^\circ$ planar 2D LiDAR coverage + ring of ultrasonic transducers & FF & quan & Blind-spot mapping with standard reflection targets \\
+S02 & 3D Visual Perception & Head-mounted stereo RGB-D sensor (depth range $0.2\text{--}3.0\text{ m}$, $\ge 720\text{p}@30\text{fps}$) & FF & qual & Point cloud calibration \& depth RMS error check \\
+S03 & Contact \& Effort Feedback & Motor phase current sensing ($\pm 50\text{ mA}$ resolution) + compliant finger pads & BF & qual & Sensorless contact detection \& slip limit test \\
+\midrule
+
+\multicolumn{6}{@{}l}{\textbf{7. Software and Embodied Intelligence (\emph{Software und KI})}} \\
+\midrule
+A01 & Standard Middleware & ROS 2 LTS distribution (Humble Hawksbill / Jazzy Jalisco) & FF & qual & Node graph audit \& package build verification \\
+A02 & Decoupled Task Port Actions & Standard Action interfaces (\texttt{/navigate}, \texttt{/pick\_object}, \texttt{/place\_object}) & FF & qual & Automated integration test flashing Task Port client \\
+A03 & Spoken Command Latency & Whisper Speech-to-Text inference latency $\le 1.5\text{ s}$ for 5-second audio input & BF & quan & Onboard edge compute benchmark execution \\
+A04 & VLA Action Bandwidth & Vision-Language-Action policy proposal rate $\ge 10\text{ Hz}$ with $1\text{ kHz}$ spline & BF & quan & Continuous end-to-end action streaming latency \\
+\midrule
+
+\multicolumn{6}{@{}l}{\textbf{8. Human-Machine Interface and Teleoperation (\emph{HMI und Teleoperation})}} \\
+\midrule
+H01 & Web Teleoperation Latency & Bidirectional web dashboard teleoperation latency $\le 100\text{ ms}$ over local Wi-Fi & BF & quan & Round-trip ping \& video pipeline glass-to-glass test \\
+H02 & Telemetry \& Alarms & Real-time visual telemetry, battery SoC display, and visual/audible alarms & FF & qual & Fault injection test for temperature/voltage alarms \\
+H03 & Task Programming Macro & Interactive teach-in and macro recording of waypoints \& gripper events & BF & qual & Non-expert operator usability and execution test \\
+H04 & Physical Bulkhead Panel & Maintenance panel with hardware E-stop, charging port, GbE, USB 3.0 & FF & qual & Physical layout inspection \& port accessibility \\
+\midrule
+
+\multicolumn{6}{@{}l}{\textbf{9. Collaborative Safety and Compliance (\emph{Sicherheit und Normen})}} \\
+\midrule
+SF01 & Collaborative Robot Safety & ISO 13482 compliance: speed/separation monitoring, contact force $\le 150\text{ N}$ & FF & qual & Safety zone deceleration \& bio-fidelic impact test \\
+\bottomrule
+\end{longtable}
+\end{small}
+
+\subsection{Engineering Rationale for the Core Architectural Decisions}
+\label{subsec:engineering_rationale}
+The synthesis of the engineering requirements list in Table~\ref{tab:anforderungsliste} reflects deliberate trade-offs established to maximize physical robustness, control determinism, operational reliability, and ease of maintenance within domestic and light-industrial environments. Four foundational architectural decisions anchor the entire mechatronic design:
+
+\subsubsection{1. Differential Drive Base vs. Omnidirectional Mecanum Drive}
+While omnidirectional Mecanum wheel arrangements provide three unconstrained planar degrees of freedom ($\dot{x}, \dot{y}, \dot{\theta}$), an in-depth tribological and dynamic analysis reveals severe disadvantages that violate core operational requirements in unstructured human environments:
+\begin{itemize}[leftmargin=1.5em]
+  \item \textbf{Traction Loss and Dead-Reckoning Drift:} Mecanum kinematics rely on passive peripheral rollers angled at $45^\circ$. When traversing mixed indoor floorings---such as low-pile carpeting, polished tile, linoleum, or thresholds with micro-contaminants---the passive rollers experience unpredictable intermittent slip. Empirical testing of service robots reveals that Mecanum bases exhibit odometric dead-reckoning errors exceeding $15\text{--}25\%$ over modest travel distances, severely degrading Kalman-filtered wheel odometry and forcing heavy reliance on scan matching. In contrast, a differential drive base employing two high-traction polyurethane drive wheels paired with two passive, spring-damped swivel casters provides non-slip rolling contact. This ensures highly deterministic wheel odometry with dead-reckoning drift well below $2\%$.
+  \item \textbf{Vibrational Excitation of Structural Linkages:} The discrete geometric transitions between adjacent rollers on a Mecanum wheel introduce high-frequency periodic impact shocks during rolling. These impacts excite structural natural frequencies in the robot's upper body and neck linkages, generating image blur in the head-mounted RGB-D camera and destabilizing sensitive optical perception pipelines. The continuous rolling profile of solid differential drive wheels eliminates this vibrational excitation mode entirely.
+  \item \textbf{Energetic Efficiency and Mechanical Simplicity:} Mecanum drives require four independent high-power geared motor units, whereas differential drive requires only two motorized hubs. The parasitic scrubbing friction inherent to Mecanum roller vectors consumes $30\text{--}40\%$ more electrical power for equivalent forward thrust. By selecting differential drive, the platform saves approximately $6\text{--}8\text{ kg}$ of actuator mass and significantly extends operational battery runtime beyond $3.0\text{ h}$ (E02). Zero-radius in-place rotation ($\omega_z$) provides ample maneuverability through standard $750\text{ mm}$ doorways (G02).
+\end{itemize}
+
+\subsubsection{2. Dual 6-DoF Manipulators vs. 7-DoF Redundant Kinematic Chains}
+Anthropomorphic mobile manipulation literature frequently advocates for 7-DoF arms due to the kinematic redundancy of the elbow swivel angle. However, an analysis of the specific manipulation tasks required for table clearing and pick-and-place reveals that 6-DoF serial manipulators offer decisive engineering advantages:
+\begin{itemize}[leftmargin=1.5em]
+  \item \textbf{Sufficiency for Task-Space Reachability:} The target operational tasks require reaching positions and orientations within the special Euclidean group $SE(3) = \mathbb{R}^3 \times SO(3)$. A 6-DoF manipulator possessing an anthropomorphic shoulder-elbow-spherical wrist topology provides the exact mathematical minimum number of joints required to position and orient the end-effector arbitrarily within its reachable volume. Because the mobile base itself provides planar degrees of freedom ($x, y, \theta$), the combined mobile manipulation system already possesses $2 + 6 = 8$ degrees of freedom per arm, providing external kinematic redundancy without inflating joint complexity.
+  \item \textbf{Mass, Cantilever Inertia, and Dynamic Bandwidth:} Incorporating a 7th active joint adds approximately $1.5\text{--}2.5\text{ kg}$ of concentrated mass into the upper limb. In accordance with the fundamental relation governing natural frequency:
+  \begin{equation}
+    \omega_n = \sqrt{\frac{K}{M}}
+  \end{equation}
+  adding distal joint mass dramatically increases the cantilever moment arm exerted on the shoulder base:
+  \begin{equation}
+    M_b = m_{\text{arm}} g L_{\text{CoM}} + m_{\text{payload}} g L_{\text{reach}}
+  \end{equation}
+  This lowers the structural natural frequency, which in turn inflates the mechanical settling time:
+  \begin{equation}
+    t_{\text{settling}} \approx \frac{4}{\zeta \omega_n}
+  \end{equation}
+  By eliminating the 7th joint, link mass is reduced, shifting structural resonance frequencies above $15\text{ Hz}$ and allowing settling times $t_{\text{settling}} \le 0.5\text{ s}$ ($\zeta \ge 0.6$) under high-speed point-to-point trajectory profiles (D05).
+  \item \textbf{Computational Determinism and Fieldbus Bandwidth:} Resolving the kinematic inversion of 7-DoF redundant arms requires numerical pseudo-inverse damping ($\mathbf{J}^\dagger$) or secondary null-space projection tasks. These iterative solvers introduce algorithmic non-determinism, computational latency jitter, and unpredictable joint reconfigurations that complicate real-time closed-loop control. With dual 6-DoF arms, the total joint count across both limbs is fixed at 12 DoF, halving inverse kinematic computation overhead and fitting within the deterministic packet constraints of a 1~Mbps CAN fieldbus (C02).
+\end{itemize}
+
+\subsubsection{3. Fixed Ergonomic Torso vs. Actively Elevating Prismatic Lift Column}
+Many research mobile manipulators incorporate a telescoping vertical column to extend vertical reach from floor level to upper cabinetry. While versatile, prismatic columns introduce structural liabilities that compromise reliability in practical deployment:
+\begin{itemize}[leftmargin=1.5em]
+  \item \textbf{Mechanical Binding under Cantilever Bending Moments:} A vertical prismatic lift column requires precision linear guide rails, recirculating ball bearings, and a ball-screw or timing-belt transmission. When both 6-DoF arms are extended horizontally with payloads, the resulting forward cantilever moment exerts extreme normal reaction forces across the linear bearing carriages:
+  \begin{equation}
+    F_{\text{reaction}} = \frac{M_{\text{cantilever}}}{d_{\text{bearing}}} = \frac{\sum m_i g L_i}{d_{\text{bearing}}}
+  \end{equation}
+  where $d_{\text{bearing}}$ is the vertical spacing between bearing blocks. In practice, this high moment causes mechanical binding, stick-slip vibration, accelerated wear, and potential catastrophic jamming of the lift mechanism.
+  \item \textbf{Parasitic Dead Weight and Center-of-Mass Elevation:} A motorized prismatic stage, including guide rails, structural telescoping sleeves, ball screw, and brake motor, adds $10\text{--}15\text{ kg}$ of parasitic dead weight. Elevating this mass raises the system center of mass ($z_{\text{CoM}}$), drastically increasing the risk of dynamic tip-over during abrupt emergency braking maneuvers.
+  \item \textbf{Targeted Functional Workspace Coverage:} An analysis of domestic and service tasks shows that the overwhelming majority of high-value manipulation targets reside within an ergonomic height band: dining tables ($720\text{--}760\text{ mm}$), kitchen countertops ($850\text{--}920\text{ mm}$), desks ($750\text{ mm}$), and eye-level storage shelves ($1100\text{--}1350\text{ mm}$). By fixing the torso height at an ergonomic shoulder center of $\approx 950\text{ mm}$ (overall robot height $1200\text{--}1300\text{ mm}$), the dual 6-DoF arms cover a continuous vertical manipulation band from $500\text{ mm}$ to $1350\text{ mm}$ (K04) purely through arm articulation. This eliminates moving torso pinch hazards, maximizes torsional and bending rigidity ($K$), lowers the center of mass into the base chassis ($z_{\text{CoM}} \le 350\text{ mm}$), and saves substantial fabrication cost.
+\end{itemize}
+
+\subsubsection{4. Dual 2-Finger Parallel Grippers vs. Multi-Fingered Anthropomorphic Hands}
+Anthropomorphic five-finger hands provide high aesthetic biomimicry but suffer from severe physical and algorithmic limitations in real-world manipulation:
+\begin{itemize}[leftmargin=1.5em]
+  \item \textbf{Mechanical Fragility and High Maintenance:} Multi-fingered hands require between 16 and 24 active or underactuated micro-joints driven by miniature brushed DC motors, ultra-thin tendon cables, and micro-pulleys. Under continuous pick-and-place cycles, tendon cables experience severe fatigue stretching, unseating, and rupture, resulting in prohibitive maintenance downtime and replacement costs.
+  \item \textbf{Grasp Planning Dimensionality and Execution Failure:} Generating stable force-closure grasps for an articulated hand requires solving high-dimensional non-linear contact optimization problems over hundreds of candidate grasp topologies. In cluttered tabletop environments, slight object pose estimation errors often lead to fingertip collisions, dropped objects, and grasp failure.
+  \item \textbf{Deterministic Performance with Compliant Silicone Pads:} In contrast, a 2-finger parallel gripper driven by a single high-efficiency lead screw or rack-and-pinion transmission delivers deterministic, backlash-free bidirectional travel ($0\text{--}85\text{ mm}$ stroke) and robust clamping forces of $15\text{--}35\text{ N}$ (D02). By outfitting the rigid aluminum finger tips with molded compliant silicone pads ($\mu_s \ge 0.8$), the contact surface passively deforms around diverse geometric profiles (cylindrical bottles, rectangular boxes, spherical fruit, delicate tableware), converting complex geometric grasping into a reliable, single-parameter linear closure. Motor phase current monitoring provides direct, sensorless grasping force regulation ($\pm 50\text{ mA}$) to securely grip delicate objects without damage.
+\end{itemize}
+
+\subsection{Decoupling Capability from Intent: The Architectural Foundation}
+\label{subsec:decoupling_intent}
+A foundational engineering axiom of the platform is the rigorous, architectural decoupling of \emph{physical capability} from \emph{operational intent}:
+\begin{quote}
+\emph{The core mechatronic platform must encapsulate all deterministic physical capabilities---motion control, trajectory generation, kinematic safety limits, and low-level sensor acquisition---behind a hardened abstraction boundary, completely independent from high-level cognitive policies, speech parsers, or probabilistic AI models.}
+\end{quote}
+This decoupling is implemented through the \textbf{Task Port} abstraction layer. Downstream application software, external mission orchestrators, or modern Vision-Language-Action (VLA) foundation models interact with the robot solely by submitting high-level goal actions (e.g., \texttt{/navigate}, \texttt{/pick\_object}, \texttt{/place\_object}). The platform validates these goal primitives against internal kinematic boundaries, collision models, and ISO~13482 safety limits before executing them deterministically across the 1~kHz real-time fieldbus. 
+
+This strict separation ensures that high-level software bugs, out-of-distribution neural network hallucinations, or network disconnects cannot cause physical link collisions, actuator over-torquing, or human injury, providing an extensible and safe foundation for physical AI research.

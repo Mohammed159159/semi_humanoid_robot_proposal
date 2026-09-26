@@ -1,0 +1,211 @@
+\section{Bill of Materials, Economics, and Implementation Roadmap}
+\label{sec:bom_roadmap}
+
+\subsection{Consolidated Bill of Materials (BOM)}
+A foundational objective of the mechatronic design process is reconciling high-performance mobile manipulation capabilities with strict financial and procurement constraints. Grounded in the comprehensive component quotations and local Egyptian market sourcing analysis documented in the project budget evaluation, Table~\ref{tab:consolidated_bom} presents the consolidated Bill of Materials (BOM) for the complete core robotic platform.
+
+\begin{table*}[htbp]
+\centering\scriptsize
+\caption{Consolidated Bill of Materials (BOM) for the core semi-humanoid robotic platform.}
+\label{tab:consolidated_bom}
+\begin{tabularx}{\textwidth}{@{}l Y l c r r l@{}}
+\toprule
+\textbf{Component} & \textbf{Technical Specification} & \textbf{Subsystem} & \textbf{Qty} & \textbf{Unit (EGP)} & \textbf{Total (EGP)} & \textbf{Category} \\
+\midrule
+\multicolumn{7}{@{}l}{\textbf{Actuation \& Drivetrain}} \\
+DC Gearmotor with Encoder & 24V, 100W, $\sim 30:1$ planetary reduction, optical quadrature & Base & 2 & 7,405 & 14,810 & Actuation \\
+QDD Actuator (AK70-10) & CubeMars AK70-10, $24.8\text{ N}\cdot\text{m}$ peak, 10:1 planetary, FOC driver & Torso, Arms & 9 & 22,155 & 199,395 & Actuation \\
+Serial Bus Servo (STS3215) & Feetech STS3215, 12V, $2.9\text{ N}\cdot\text{m}$ stall, half-duplex TTL bus & Head, Arms & 6 & 1,480 & 8,880 & Actuation \\
+Serial Bus Servo (STS3032) & Feetech STS3032, compact parallel-jaw drive bus servo & Dual Arms & 2 & 1,075 & 2,150 & Actuation \\
+\midrule
+\multicolumn{7}{@{}l}{\textbf{Sensing \& Perception Suite}} \\
+2D LiDAR Scanner & Slamtec RPLiDAR A1M8, $360^\circ$ scan, $12\text{ m}$ range, 5.5--10~Hz & Base & 1 & 6,665 & 6,665 & Sensing \\
+Ultrasonic Range Sensors & HC-SR04 sonar array (4 units), base perimeter obstacle coverage & Base & 4 & 205 & 820 & Sensing \\
+Torso 9-DoF IMU & BNO085-class 9-DoF IMU breakout, SPI/I2C fused orientation & Torso & 1 & 930 & 930 & Sensing \\
+RGB-D Perception Camera & Intel RealSense D435/D455, depth and RGB streams, USB 3.0 & Head & 1 & 55,000 & 55,000 & Sensing \\
+Microphone Array & ReSpeaker 2-Mic Pi HAT, far-field voice recognition pickup & Head & 1 & 1,685 & 1,685 & Sensing \\
+Audio Feedback Speaker & 2~W low-profile speaker with I2S class-D amplifier & Head & 1 & 620 & 620 & Sensing \\
+\midrule
+\multicolumn{7}{@{}l}{\textbf{Compute, Embedded Control \& Custom Electronics}} \\
+Dedicated Microcontroller & ESP32-WROOM-32 DevKitC, dual-core 240~MHz, TWAI CAN & Subsystems & 5 & 465 & 2,325 & Compute \\
+Main Compute Module & NVIDIA Jetson Orin NX (16~GB) Module + Carrier Board & Torso & 1 & 100,000 & 100,000 & Compute \\
+Compute Cooling Kit & Active heatsink + PWM blower fan for Orin NX compute bay & Torso & 1 & 1,815 & 1,815 & Compute \\
+Custom Base Controller PCB & Dual H-bridge, encoder buffers, ESP32 header, fabricated & Base & 1 & 3,030 & 3,030 & Compute \\
+Custom Power \& Waist PCB & Fused busbars, 3x buck regulators, CAN transceiver & Torso & 1 & 4,715 & 4,715 & Compute \\
+Custom Head Interface PCB & TTL servo level shifters, audio amp, ESP32 carrier & Head & 1 & 1,885 & 1,885 & Compute \\
+Custom Arm Interface PCB & CAN transceiver, TTL buffer, ESP32 header (per arm) & Dual Arms & 2 & 2,155 & 4,310 & Compute \\
+\midrule
+\multicolumn{7}{@{}l}{\textbf{Power, Energy Storage \& Electrical Safety}} \\
+Main Battery Pack & $\text{LiFePO}_4$, 24V, 20Ah ($\sim 480\text{ Wh}$), internal 40A BMS & Torso & 1 & 13,935 & 13,935 & Power \\
+Smart Battery Charger & 24V $\text{LiFePO}_4$ profile smart charger, 5~A CC/CV & External & 1 & 2,330 & 2,330 & Power \\
+Main Safety Contactor & 24V coil, 40~A continuous rating, hardware E-Stop cutoff & Torso & 1 & 1,815 & 1,815 & Power \\
+\midrule
+\multicolumn{7}{@{}l}{\textbf{Structural Hardware \& Mechanical Running Gear}} \\
+Primary Drive Wheels & $\varnothing 200\text{ mm}$ high-traction rubber wheels + motor shaft hubs & Base & 2 & 1,970 & 3,940 & Mechanical \\
+Heavy-Duty Swivel Casters & $100\text{ mm}$ polyurethane load-rated casters (dual rear support) & Base & 2 & 930 & 1,860 & Mechanical \\
+\midrule
+\multicolumn{3}{@{}l}{\textbf{Core Platform Total Cost (Base + Torso + Head + Dual Arms)}} & \multicolumn{3}{r}{\textbf{EGP 432,915}} & \textbf{100.0\%} \\
+\bottomrule
+\end{tabularx}
+\end{table*}
+
+\subsection{Device-Level Subsystem Cost Distribution}
+In alignment with the modular device architecture detailed in Section~\ref{sec:subsystems_detail}, Table~\ref{tab:subsystem_costs} details the cost share and financial allocation across each independent sub-assembly.
+
+\begin{table}[htbp]
+\centering\small
+\caption{Device-level cost distribution and share of the core platform budget.}
+\label{tab:subsystem_costs}
+\begin{tabularx}{\textwidth}{@{}l Y r r@{}}
+\toprule
+\textbf{Subsystem Device} & \textbf{Functional Scope \& Key Components} & \textbf{Total Cost (EGP)} & \textbf{Cost Share (\%)} \\
+\midrule
+\textbf{Dual 6-DoF Arms} & 8x AK70-10 QDDs, 4x STS3215, 2x STS3032 grippers, 2x PCBs, 2x MCUs & 190,550 & 44.0\% \\
+\textbf{Torso \& Power} & AK70-10 waist, Jetson Orin NX 16GB, 24V 20Ah $\text{LiFePO}_4$, PDB, BMS & 148,160 & 34.2\% \\
+\textbf{Perception Head} & Intel RealSense RGB-D, 2x STS3215 pan/tilt, mic array, speaker, PCB & 62,615 & 14.5\% \\
+\textbf{Mobile Base} & 2x 100W DC gearmotors, 2D LiDAR, ultrasonic sensors, wheels, PCB & 31,590 & 7.3\% \\
+\midrule
+\textbf{Core Platform Total} & \textbf{Fully integrated baseline mobile manipulator} & \textbf{EGP 432,915} & \textbf{100.0\%} \\
+\midrule
+\emph{Telescopic Column} & \emph{Optional modular add-on (24V linear drive, rails, tubes, MCU, PCB)} & \emph{+EGP 32,920} & \emph{+7.6\%} \\
+\midrule
+\textbf{Grand Total} & \textbf{Platform including optional telescopic column} & \textbf{EGP 465,835} & \textbf{--} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Economic Analysis and Category Breakdown}
+Decomposing the core platform budget (EGP 432,915) by engineering disciplines reveals the economic drivers of the mechatronic architecture:
+\begin{itemize}[leftmargin=1.5em]
+  \item \textbf{Actuation and Drives (52.0\% / EGP 225,235):} Constitutes the largest single investment, comprising the nine CubeMars AK70-10 QDD modules, eight Feetech serial bus servos, and two base drive gearmotors.
+  \item \textbf{Compute and Embedded Control (27.3\% / EGP 118,080):} Dominated by the NVIDIA Jetson Orin NX (16~GB) module (EGP 100,000), which supplies the 100~TOPS of INT8 tensor acceleration required for on-device VLA policy inference, alongside the five ESP32 MCUs and four custom populated PCBs.
+  \item \textbf{Sensing and Perception Suite (15.2\% / EGP 65,720):} Primarily driven by the Intel RealSense depth camera (EGP 55,000), complemented by the Slamtec 2D LiDAR, 9-DoF IMU, ultrasonic sonar sensors, and acoustic hardware.
+  \item \textbf{Power, Electrical Safety, and Mechanical Structure (5.5\% / EGP 23,880):} Encompasses the 480~Wh $\text{LiFePO}_4$ battery pack, smart charger, 40~A safety contactor, high-traction drive wheels, and swivel casters.
+\end{itemize}
+
+\subsubsection{Economic Sizing Rationale: The Hybrid Actuation Strategy}
+A major architectural innovation of this platform is its tiered hybrid actuation strategy. Conventional industrial collaborative arms (e.g., Franka Emika Panda, Universal Robots UR3) utilize strain-wave harmonic gearings and joint torque sensors at all axes, resulting in arm costs exceeding \$25,000--\$35,000 USD (EGP 1,200,000+). Conversely, hobby-grade multi-servo arms fail to provide sufficient holding torque and exhibit high backlash.
+
+By deploying CubeMars AK70-10 Quasi-Direct Drive actuators (24.8~$\text{N}\cdot\text{m}$ peak torque, 10:1 planetary gear) at the high-load proximal axes (waist tilt, shoulder pitch/roll/yaw, and elbow pitch), the robot secures intrinsic backdrivability, direct motor current torque estimation, and dynamic compliance where impact hazards are greatest. Concurrently, lightweight Feetech STS3215 serial bus servos ($2.9\text{ N}\cdot\text{m}$) are deployed at the distal wrist pitch and roll axes, where gravitational cantilever moments are minimal. This tiered approach reduces total manipulator actuation expenditure to EGP 190,550 ($\sim$\$3,900 USD) for dual 6-DoF arms---an approximate 70\% cost reduction relative to commercial research manipulators.
+
+\subsubsection{Domestic Egyptian Sourcing and Sizing Rationale for the Telescopic Column}
+All selected electronic components (ESP32 microcontrollers, motor drivers, $\text{LiFePO}_4$ cells, connectors) were chosen from supply lines available directly within the Egyptian domestic distribution market or established regional importers. This insulates the project against foreign exchange volatility and protracted customs clearance delays.
+
+Crucially, the telescopic lift column (detailed in Table~\ref{tab:telescopic_bom}) was evaluated as a modular upgrade (+EGP 32,920, representing a 7.6\% budget expansion) and intentionally excluded from the core baseline build. Kinematic simulation in Section~\ref{sec:tasks_benchmarks} demonstrated that combining the mobile base translation with the active waist tilt joint provides a vertical reaching span of $300\text{--}1200\text{ mm}$, successfully covering standard dining tables ($750\text{ mm}$), kitchen countertops ($900\text{ mm}$), and lower storage shelves without an active prismatic mast. Omitting the column from the baseline platform:
+\begin{enumerate}[leftmargin=1.5em]
+  \item Reduces dry structural mass by $8.5\text{ kg}$, lowering the system center of mass by $180\text{ mm}$ and enhancing dynamic tipping margins during rapid mobile base deceleration.
+  \item Eliminates mechanical binding and backlash risks inherent to sliding prismatic guide tubes under off-axis arm loads.
+  \item Optimizes fiscal allocation, channeling available budget into high-performance compute (Jetson Orin NX 16GB) and high-fidelity depth perception (Intel RealSense).
+\end{enumerate}
+
+\begin{table}[htbp]
+\centering\small
+\caption{Detailed Bill of Materials for the optional modular telescopic column add-on.}
+\label{tab:telescopic_bom}
+\begin{tabularx}{\textwidth}{@{}l Y c r r l@{}}
+\toprule
+\textbf{Component} & \textbf{Specification} & \textbf{Qty} & \textbf{Unit (EGP)} & \textbf{Total (EGP)} & \textbf{Category} \\
+\midrule
+Heavy-Duty Linear Drive & 24V electric linear actuator, $300\text{ mm}$ stroke, 1500~N thrust & 1 & 17,510 & 17,510 & Actuation \\
+Linear Guide Rail \& Carriage & Dual MGN15 recirculating ball rails + carriages & 1 & 6,215 & 6,215 & Mechanical \\
+Telescoping Tube Set & Nested precision aluminum square tubes with bronze bushings & 1 & 7,250 & 7,250 & Mechanical \\
+Dedicated Microcontroller & ESP32-WROOM-32 DevKitC (independent lift controller) & 1 & 465 & 465 & Compute \\
+Custom Column Driver PCB & Populated PCB with H-bridge power stage \& limit headers & 1 & 1,480 & 1,480 & Compute \\
+\midrule
+\multicolumn{3}{@{}l}{\textbf{Optional Telescopic Column Subsystem Total Cost}} & \multicolumn{2}{r}{\textbf{+EGP 32,920}} & \textbf{+7.6\%} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Risk Register and Mitigation Matrix}
+The development of a multi-DoF semi-humanoid robot entails technical, operational, and supply chain risks. Table~\ref{tab:risk_register} defines the project risk register, evaluated using a standard Risk Priority Number ($RPN = \text{Likelihood } [1\text{--}5] \times \text{Severity } [1\text{--}5]$) alongside concrete engineering mitigation strategies.
+
+\begin{table*}[htbp]
+\centering\footnotesize
+\caption{Mechatronic risk register and engineering mitigation matrix.}
+\label{tab:risk_register}
+\begin{tabularx}{\textwidth}{@{}l p{3.2cm} c c c Y@{}}
+\toprule
+\textbf{ID} & \textbf{Risk Description \& Operational Impact} & \textbf{Sev (S)} & \textbf{Lik (L)} & \textbf{RPN} & \textbf{Concrete Technical Mitigation Strategy} \\
+\midrule
+R1 & 
+\textbf{Import Delays \& Currency Fluctuations:} Custom electronic components delayed at international shipping ports. & 
+4 & 3 & 12 & 
+Dual-source component procurement; domestic Egyptian stocking for all passives, MCUs, and power hardware; modular PCB footprints accommodating pin-compatible alternative ICs. \\
+\addlinespace[3pt]
+R2 & 
+\textbf{Actuator Thermal Heating:} Continuous static holding torques on arm/waist QDDs cause thermal throttling or winding damage. & 
+4 & 3 & 12 & 
+High-conductivity 6061-T6 aluminum heatsink motor brackets; active convective fan ducting inside torso; software gravity-compensation feeds in MoveIt 2; automatic firmware thermal derating at $T \ge 70^\circ\text{C}$. \\
+\addlinespace[3pt]
+R3 & 
+\textbf{CAN Bus Packet Jitter \& Saturation:} 1~kHz motor control frames collide with sensor telemetry on shared bus, causing control instability. & 
+4 & 2 & 8 & 
+Dual physically separated CAN 2.0B buses (Bus 1: Torso \& Arm QDDs; Bus 2: Base Drivetrain); strict monotonic arbitration ID prioritization; pre-allocated static DMA ring buffers in ESP32 TWAI drivers. \\
+\addlinespace[3pt]
+R4 & 
+\textbf{VLA Policy Hallucination:} Vision-Language-Action neural policy outputs unconstrained out-of-distribution trajectories. & 
+5 & 3 & 15 & 
+The Task Port safety supervisor intercepts all VLA action chunks; enforces hard Cartesian bounding boxes, maximum joint speed clamps ($\le 0.5\text{ rad/s}$), MoveIt 2 collision checks, and impedance contact force abort thresholds. \\
+\addlinespace[3pt]
+R5 & 
+\textbf{Battery Rail Transient Voltage Sag:} Simultaneous acceleration of dual arms and mobile base draws high surge currents, resetting MCUs. & 
+3 & 3 & 9 & 
+High-discharge $\text{LiFePO}_4$ chemistry ($2C$ continuous, $5C$ pulse); low-ESR bulk electrolytic capacitor banks ($3 \times 2200\,\mu\text{F}$) on custom PDB; galvanically isolated DC-DC converters for logic rails ($19\text{V}$, $5\text{V}$, $3.3\text{V}$). \\
+\addlinespace[3pt]
+R6 & 
+\textbf{Perception Occlusion \& Lighting Variation:} Tabletop objects occluded by manipulator arms or distorted by intense sunlight. & 
+3 & 3 & 9 & 
+Active 2-DoF head pan-tilt visual search patterns; multi-frame point cloud temporal filtering; active IR stereo projection from Intel RealSense; complementary ultrasonic proximity detection around base perimeter. \\
+\bottomrule
+\end{tabularx}
+\end{table*}
+
+\subsection{Phased Implementation Roadmap}
+The engineering lifecycle progresses across four synchronized phases spanning September through June, structured according to the VDI~2206 macro-cycle model and project milestones.
+
+\subsubsection{Phase 1: Component Benchtop Characterization \& PCB Prototyping (Months 1--3: Sep--Nov)}
+The primary objective of Phase~1 is the empirical verification of physical components and custom electronics prior to chassis fabrication:
+\begin{itemize}[leftmargin=1.5em]
+  \item \textbf{Actuator Dynamometer Testing:} Benchtop characterization of the CubeMars AK70-10 QDD actuators. Validate torque constant ($K_t$), continuous holding thermal limits, and step response bandwidth using a dedicated reaction-torque loadcell fixture.
+  \item \textbf{PCB Layout, Fabrication, and Assembly:} Design, review, and fab submission of the four custom circuit boards in KiCad. Assemble surface-mount components, verify rail voltage regulation, and test the 40~A safety contactor cutoff timing ($\le 10\text{ ms}$).
+  \item \textbf{Low-Level Embedded Firmware Bring-Up:} Flash FreeRTOS firmware to the ESP32-WROOM-32 microcontrollers. Establish deterministic 1~kHz TWAI CAN communication with motor inverters and 1~Mbps half-duplex TTL serial bus control with Feetech servos.
+  \item \textbf{Milestone 1 Exit Criteria:} Fully operational benchtop hardware loop: Jetson Orin NX commanding synchronized multi-axis motor motions over CAN and TTL buses with zero dropped packets over 1 hour of continuous cycling.
+\end{itemize}
+
+\subsubsection{Phase 2: Software-in-the-Loop (SIL) and Digital Twin Simulation (Months 3--5: Dec--Jan)}
+Operating concurrently with the physical manufacturing track, Phase~2 constructs a physics-accurate digital twin to validate high-level software stacks:
+\begin{itemize}[leftmargin=1.5em]
+  \item \textbf{Digital Twin Simulation (Isaac Sim / Gazebo):} Formulate the comprehensive robot URDF/Xacro model, incorporating exact link masses, centers of gravity, and inertia tensors derived from CAD solid models. Import the digital twin into NVIDIA Isaac Sim~\cite{isaaclab} and Gazebo Harmonic.
+  \item \textbf{Autonomous Navigation Stack Validation:} Deploy the Nav2 stack within a simulated multi-room domestic apartment modeled after the RoboCup@Home arena. Validate 2D LiDAR SLAM, costmap inflation tuning, dynamic obstacle clearance, and smooth trajectory tracking.
+  \item \textbf{MoveIt~2 Manipulation Planning:} Configure MoveIt~2 kinematic solvers for the dual 6-DoF arms and waist axis. Verify collision-free motion planning, self-collision matrices, and Cartesian tool-center-point (TCP) trajectory interpolation.
+  \item \textbf{Parallel Manufacturing Track:} Execution of chassis CNC plate machining, waterjet cutting, 3D printing of structural housings (MJF PA12), and precision welding of the torso space-frame.
+  \item \textbf{Milestone 2 Exit Criteria:} Complete autonomous pick-and-place pipeline validated in simulation (Nav2 navigation + RealSense segmentation + MoveIt~2 trajectory planning) achieving $>90\%$ simulated task success rate.
+\end{itemize}
+
+\subsubsection{Phase 3: Physical Assembly \& Hardware-in-the-Loop (HIL) Integration (Months 5--7: Feb--Mar)}
+Phase~3 integrates the manufactured mechanical structure, custom electronics, and low-level firmware into a fully operational physical robot:
+\begin{itemize}[leftmargin=1.5em]
+  \item \textbf{Mechanical Assembly and Harnessing:} Assemble the mobile base drivetrain, bolt the torso space-frame to the chassis with precision dowel pins, mount the dual 6-DoF arms, and install the 2-DoF sensor head. Route twisted-pair shielded wire harnesses through cable carriers and slip rings.
+  \item \textbf{Power Distribution and Safety Commissioning:} Install the $24\text{V}$, $20\text{Ah}$ $\text{LiFePO}_4$ battery pack, smart BMS, and custom PDB. Execute full-system electrical isolation testing and verify physical E-Stop contactor cutoff under live motor load.
+  \item \textbf{Hardware-in-the-Loop Controller Tuning:} Connect the Jetson Orin NX host to the physical microcontroller fieldbus via micro-ROS. Calibrate joint zero-positions, tune closed-loop velocity PID gains on the mobile base, and configure gravity-compensation feedforward tables on arm joints.
+  \item \textbf{Web Teleoperation Dashboard Bring-Up:} Deploy the web dashboard on the local network. Establish low-latency WebRTC video streaming from the RealSense camera and verify manual Cartesian jog teleoperation.
+  \item \textbf{Milestone 3 Exit Criteria:} Physical platform standing under its own power, executing synchronized dual-arm motions and mobile base teleoperation with smooth, vibration-free motion and verified emergency stop functionality.
+\end{itemize}
+
+\subsubsection{Phase 4: Task Port Validation \& Proof-of-Concept Demonstration (Months 7--9: Apr--Jun)}
+The concluding phase verifies the core architectural premise of the platform: decoupling capability from intent via the standardized Task Port interface:
+\begin{itemize}[leftmargin=1.5em]
+  \item \textbf{Task Port Action Server Deployment:} Expose standardized ROS~2 Action Servers for navigation, arm manipulation, and speech interaction (\texttt{/navigate\_to\_pose}, \texttt{/pick\_object}, \texttt{/place\_object}, and \texttt{/speak\_text}).
+  \item \textbf{Empirical Proof-of-Concept Task Execution:} Flash an external, task-specific application node representing the canonical RoboCup@Home General Purpose Service Robot (GPSR) Category~I task:
+  \begin{enumerate}[leftmargin=1.2em]
+    \item System accepts natural language command: \emph{``Robot, navigate to the dining table, pick up the beverage can, and place it on the counter.''}
+    \item Base autonomously navigates $6\text{ m}$ through a furnished domestic environment, clearing dynamic obstacles using Nav2.
+    \item Perception head executes active 3D point cloud segmentation via RealSense, identifying target object coordinates and surface grasp orientation.
+    \item Left manipulator executes compliant collision-free reach, secures workpiece with parallel gripper, and verifies grasp via motor current feedback.
+    \item Platform navigates to destination countertop, executes controlled placement, and provides spoken verbal completion confirmation.
+  \end{enumerate}
+  \item \textbf{Validation Against Engineering Requirements:} Formally benchmark platform performance against the engineering requirements list (Table~\ref{tab:anforderungsliste}), recording transit velocity ($0.9\text{ m/s}$), payload capacity ($2.2\text{ kg}$), Cartesian repeatability ($\pm 1.4\text{ mm}$), and continuous battery runtime ($4.6\text{ h}$).
+  \item \textbf{Embodied AI Exploration (Stretch Goal):} Evaluate zero-shot trajectory inference using an INT8 quantized OpenVLA foundation model~\cite{openvla} for tabletop object sorting.
+  \item \textbf{Milestone 4 Exit Criteria:} Successful end-to-end physical execution of the autonomous pick-and-place task, verified compliance with all Fixed Requirements (FF), submission of final engineering documentation, and public graduation project defense.
+\end{itemize}

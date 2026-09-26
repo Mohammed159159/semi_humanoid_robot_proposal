@@ -1,0 +1,474 @@
+\section{Detailed Subsystems Mechatronic Design}
+\label{sec:subsystems_detail}
+
+\subsection{Modular Device-Level Mechatronic Philosophy}
+In accordance with the VDI~2206 guidelines for cyber-physical mechatronic systems~\cite{vdi2206}, the semi-humanoid robotic platform is partitioned into discrete, independently verifiable, and functionally encapsulated \emph{devices}. Rather than treating the robot as a monolithic electro-mechanical assembly, each device integrates its own structural framework, specialized actuators, primary sensing transducers, localized embedded microcontroller (Espressif ESP32-WROOM-32) or central compute module, and standardized communication interfaces.
+
+This modular device abstraction delivers three decisive engineering advantages:
+\begin{enumerate}[leftmargin=1.5em]
+  \item \textbf{Isolated Unit Testing and Hardware-in-the-Loop (HIL) Verification:} Every subsystem can be powered, calibrated, dynamically tuned, and benchmarked on a standalone test bench before final physical integration onto the chassis.
+  \item \textbf{Standardized Bus Architecture and Hot-Swappability:} Devices communicate across standardized physical links (1~Mbps CAN 2.0B / TWAI, half-duplex serial TTL, Gigabit Ethernet, and USB~3.0). Failed assemblies can be replaced rapidly without rewiring the central harness.
+  \item \textbf{Decoupled Software and Firmware Maintenance:} Microcontroller firmware manages low-level PID/FOC regulation natively, exposing standardized ROS~2 topics and action endpoints to Tier~2 and Tier~3 software.
+\end{enumerate}
+
+Figure~\ref{fig:modular_device_decomposition} illustrates the structural partitioning and logical boundaries across all eight core subsystems of the platform.
+
+\begin{figure}[htbp]
+\centering
+\resizebox{\linewidth}{!}{%
+\begin{tikzpicture}[
+    node distance=0.6cm and 0.8cm,
+    >=Latex,
+    every node/.style={font=\scriptsize, align=center},
+    subsys_card/.style={draw=navy, fill=navy!4, rounded corners=4pt, thick, inner sep=8pt, minimum width=3.6cm},
+    header_style/.style={draw=teal, fill=sky!80, rounded corners=2pt, font=\bfseries\footnotesize, text=navy, minimum width=3.4cm, minimum height=0.55cm},
+    item_style/.style={align=left, font=\scriptsize, text width=3.3cm},
+    link_arrow/.style={-{Latex[length=2mm]}, thick, teal}
+]
+
+  % Row 1: Perception Head & Compute
+  \node[subsys_card] (card_s5) {
+    \textbf{Subsystem 5: Perception Head}\\[2pt]
+    \rule{3.4cm}{0.4pt}\\[4pt]
+    \begin{minipage}{3.3cm}\raggedright
+      $\bullet$ 2-DoF Pan-Tilt (Feetech STS3215)\\
+      $\bullet$ Intel RealSense RGB-D\\
+      $\bullet$ ReSpeaker 2-Mic Array + 2W Spk\\
+      $\bullet$ ESP32 + Custom Head PCB
+    \end{minipage}
+  };
+
+  \node[subsys_card, right=1.0cm of card_s5] (card_s7) {
+    \textbf{Subsystem 7: Central Compute}\\[2pt]
+    \rule{3.4cm}{0.4pt}\\[4pt]
+    \begin{minipage}{3.3cm}\raggedright
+      $\bullet$ NVIDIA Jetson Orin NX 16 GB\\
+      $\bullet$ PREEMPT\_RT Linux + ROS 2\\
+      $\bullet$ Isolated USB-to-CAN Gateway\\
+      $\bullet$ GbE Switch + Wi-Fi 6 Module
+    \end{minipage}
+  };
+
+  \node[subsys_card, right=1.0cm of card_s7] (card_s8) {
+    \textbf{Subsystem 8: HMI \& Gateway}\\[2pt]
+    \rule{3.4cm}{0.4pt}\\[4pt]
+    \begin{minipage}{3.3cm}\raggedright
+      $\bullet$ 5--7'' Torso Status Screen\\
+      $\bullet$ Bulkhead RJ45 \& Dual USB3\\
+      $\bullet$ React Web Dashboard (WebRTC)\\
+      $\bullet$ Task Port ROS 2 Action Gateway
+    \end{minipage}
+  };
+
+  % Row 2: Left Arm, Torso, Right Arm
+  \node[subsys_card, below=1.0cm of card_s5] (card_s3) {
+    \textbf{Subsystem 3: Left 6-DoF Arm}\\[2pt]
+    \rule{3.4cm}{0.4pt}\\[4pt]
+    \begin{minipage}{3.3cm}\raggedright
+      $\bullet$ 4$\times$ CubeMars AK70-10 QDD\\
+      $\bullet$ 2$\times$ Feetech STS3215 (Wrist)\\
+      $\bullet$ Feetech STS3032 Gripper ($85\text{ mm}$)\\
+      $\bullet$ ESP32 + CAN/TTL Arm PCB
+    \end{minipage}
+  };
+
+  \node[subsys_card, below=1.0cm of card_s7] (card_s2) {
+    \textbf{Subsystem 2: Torso \& Mast}\\[2pt]
+    \rule{3.4cm}{0.4pt}\\[4pt]
+    \begin{minipage}{3.3cm}\raggedright
+      $\bullet$ 4040/4080 Al-Extrusion Spine\\
+      $\bullet$ Shoulder Yoke ($850\text{--}950\text{ mm}$)\\
+      $\bullet$ CubeMars AK70-10 Waist Tilt\\
+      $\bullet$ BNO085 9-DOF IMU + ESP32
+    \end{minipage}
+  };
+
+  \node[subsys_card, below=1.0cm of card_s8] (card_s4) {
+    \textbf{Subsystem 4: Right 6-DoF Arm}\\[2pt]
+    \rule{3.4cm}{0.4pt}\\[4pt]
+    \begin{minipage}{3.3cm}\raggedright
+      $\bullet$ 4$\times$ CubeMars AK70-10 QDD\\
+      $\bullet$ 2$\times$ Feetech STS3215 (Wrist)\\
+      $\bullet$ Feetech STS3032 Gripper ($85\text{ mm}$)\\
+      $\bullet$ ESP32 + CAN/TTL Arm PCB
+    \end{minipage}
+  };
+
+  % Row 3: Power Subsystem & Mobile Base
+  \node[subsys_card, below=1.0cm of card_s3] (card_s6) {
+    \textbf{Subsystem 6: Power \& Safety}\\[2pt]
+    \rule{3.4cm}{0.4pt}\\[4pt]
+    \begin{minipage}{3.3cm}\raggedright
+      $\bullet$ 24V 20Ah LiFePO$_4$ Pack ($\sim 480\text{ Wh}$)\\
+      $\bullet$ Smart BMS + 40A Contactor\\
+      $\bullet$ Sync Buck: 19V / 12V / 5V Rails\\
+      $\bullet$ Latching E-Stop Loop ($\le 10\text{ ms}$)
+    \end{minipage}
+  };
+
+  \node[subsys_card, below=1.0cm of card_s2, xshift=2.2cm, minimum width=8.2cm] (card_s1) {
+    \textbf{Subsystem 1: Mobile Base Device}\\[2pt]
+    \rule{8.0cm}{0.4pt}\\[4pt]
+    \begin{minipage}{8.0cm}\raggedright
+      \begin{tabular}{@{}p{4.0cm}@{\hspace{4pt}}p{3.8cm}@{}}
+        $\bullet$ 2$\times$ 24V 100W BLDC Motors & $\bullet$ Slamtec RPLiDAR A1M8 \\
+        $\bullet$ 2$\times$ 200 mm Rubber Wheels & $\bullet$ 4$\times$ Perimeter Ultrasonics \\
+        $\bullet$ Dual 100 mm Caster Wheels & $\bullet$ Custom Base H-Bridge PCB \\
+        $\bullet$ ESP32-WROOM-32 DevKitC & $\bullet$ Optical Wheel Encoders \\
+      \end{tabular}
+    \end{minipage}
+  };
+
+  % Connecting arrows representing structural and logical coupling
+  \draw[link_arrow] (card_s5.south) -- (card_s2.north west);
+  \draw[link_arrow] (card_s7.south) -- (card_s2.north);
+  \draw[link_arrow] (card_s8.south) -- (card_s2.north east);
+  \draw[link_arrow] (card_s3.east) -- (card_s2.west);
+  \draw[link_arrow] (card_s4.west) -- (card_s2.east);
+  \draw[link_arrow] (card_s2.south) -- (card_s1.north);
+  \draw[link_arrow] (card_s6.east) -- (card_s1.west);
+  \draw[link_arrow, dashed, orange] (card_s6.north) -- (card_s3.south);
+
+\end{tikzpicture}%
+}
+\caption{Device-level modular decomposition illustrating the encapsulation of mechanical structures, actuators, embedded electronics, and communications across all eight platform subsystems.}
+\label{fig:modular_device_decomposition}
+\end{figure}
+
+\subsection{Subsystem 1: Mobile Base Device}
+\label{subsec:subsystem_1_base}
+The Mobile Base Device provides agile, high-traction, and stable indoor transit across unstructured domestic and industrial floor environments. Rather than utilizing complex, maintenance-intensive Mecanum wheels that suffer from severe slippage, vibration, and debris jamming on standard indoor carpeting, the platform employs a high-traction differential drive kinematic topology paired with dual passive support points.
+
+\subsubsection{Kinematics and Wheel Sizing Rationale}
+The drivetrain utilizes two active drive wheels ($D_{\text{wheel}} = 200\text{ mm}$, $b_{\text{wheel}} = 50\text{ mm}$) featuring high-grip vulcanized rubber treads, mounted coaxially with a track gauge of $L = 460\text{ mm}$. The large $200\text{ mm}$ wheel diameter was specifically selected to ensure seamless traversal over standard architectural thresholds ($15\text{--}20\text{ mm}$ height), thick carpets, and floor-routed power cabling without chassis stalling. 
+
+Chassis balance and four-point stability are provided by two $100\text{ mm}$ heavy-duty load-rated swivel caster wheels placed symmetrically at the front and rear of the chassis perimeter. The total footprint is bounded within $520\text{ mm} \times 520\text{ mm}$, comfortably satisfying Requirement~G01 for navigating standard $750\text{ mm}$ interior doorways.
+
+The mobile base velocity vector $\mathbf{v}_{\text{base}} = [v_x, \omega_z]^T$ maps directly to the left and right wheel angular velocities $[\dot{\theta}_L, \dot{\theta}_R]^T$ via standard differential drive kinematics:
+\begin{equation}
+  \begin{bmatrix} \dot{\theta}_R \\ \dot{\theta}_L \end{bmatrix} = \frac{1}{R_{\text{wheel}}} \begin{bmatrix} 1 & L/2 \\ 1 & -L/2 \end{bmatrix} \begin{bmatrix} v_x \\ \omega_z \end{bmatrix}.
+  \label{eq:diff_kinematics}
+\end{equation}
+
+\subsubsection{Actuation and Power Transmission}
+The drive wheels are powered by two 24V, 100W high-torque DC/BLDC gearmotors featuring integrated $\sim 30:1$ steel planetary gearboxes. At nominal speed ($1.0\text{ m/s}$), the wheel rotational velocity is $\omega_w = v / R_{\text{wheel}} = 1.0 / 0.1 = 10\text{ rad/s} \approx 95.5\text{ RPM}$. With the $30:1$ reduction, the motor core spins at approximately $2865\text{ RPM}$, operating within its peak efficiency band ($>82\%$).
+
+The continuous wheel torque required to accelerate the $45\text{ kg}$ loaded platform at $a_{\text{max}} = 0.5\text{ m/s}^2$ up a $5^\circ$ ramp ($\alpha = 0.087\text{ rad}$) with rolling friction coefficient $C_{rr} = 0.02$ is calculated as:
+\begin{align}
+  F_{\text{total}} &= m g \sin(\alpha) + m g C_{rr} \cos(\alpha) + m a_{\text{max}} \nonumber \\
+  &= (45)(9.81)\sin(5^\circ) + (45)(9.81)(0.02)\cos(5^\circ) + (45)(0.5) \nonumber \\
+  &= 38.48\text{ N} + 8.79\text{ N} + 22.50\text{ N} = 69.77\text{ N}.
+\end{align}
+Divided across the two drive wheels and accounting for the $0.1\text{ m}$ radius and a transmission efficiency $\eta = 0.85$, the required gearbox output torque per wheel is:
+\begin{equation}
+  \tau_{\text{wheel}} = \frac{F_{\text{total}} R_{\text{wheel}}}{2 \eta} = \frac{(69.77)(0.1)}{2 (0.85)} = 4.10\text{ N}\cdot\text{m}.
+\end{equation}
+The selected 100W planetary gearmotors provide up to $7.5\text{ N}\cdot\text{m}$ continuous torque ($15.0\text{ N}\cdot\text{m}$ peak stall), yielding an engineering safety factor $S_F = 1.83$, guaranteeing robust acceleration and ramp climbing.
+
+\subsubsection{Sensing Suite and Blind-Zone Elimination}
+Navigation and collision avoidance rely on a complementary dual-tier sensory arrangement:
+\begin{itemize}[leftmargin=1.5em]
+  \item \textbf{Slamtec RPLiDAR A1M8:} Mounted at the leading edge of the chassis, this 2D laser scanner executes $360^\circ$ planar distance ranging up to $12\text{ m}$ at a scanning frequency of $5.5\text{--}10\text{ Hz}$ (8000 measurement points/second). It supplies high-resolution obstacle slices to the Nav2 2D costmap.
+  \item \textbf{4$\times$ HC-SR04 Ultrasonic Rangefinders:} Arrayed at $90^\circ$ intervals around the chassis perimeter ($0.02\text{--}4.0\text{ m}$ range). Because 2D LiDAR beams pass through transparent glass doors and cannot detect obstacles below the planar scanning beam (e.g., low table bases or pet toys), the ultrasonic sensors provide essential sonar reflection redundancy, halting base motion upon proximity violations ($d < 0.15\text{ m}$).
+\end{itemize}
+
+\subsubsection{Embedded Controller and Custom Base Driver PCB}
+Local wheel velocity control and sensor acquisition are governed by an Espressif ESP32-WROOM-32 DevKitC running FreeRTOS. An optocoupled quadrature decoder peripheral decodes motor encoder ticks ($1024\text{ pulses/rev}$ on the motor shaft, yielding $30{,}720\text{ counts/rev}$ at the wheel, or $0.02\text{ mm}$ linear resolution).
+
+The ESP32 is hosted on a Custom Base Controller PCB integrating:
+\begin{itemize}[leftmargin=1.5em]
+  \item A dual-channel full H-bridge MOSFET power stage rated for 24V, 20A continuous per channel, equipped with low-side current shunt amplifiers.
+  \item Optical isolators separating high-voltage motor switching noise from the ESP32 logic.
+  \item Onboard synchronous buck regulation ($24\text{V} \to 5\text{V}$, $3\text{A}$) powering the ultrasonic sensors and LiDAR motor.
+  \item A 3.3V CAN transceiver wired to the ESP32 Two-Wire Automotive Interface (TWAI) peripheral, linking the base to the Tier~3 middleware at $200\text{ Hz}$.
+\end{itemize}
+
+\subsection{Subsystem 2: Fixed Torso and Structural Mast}
+\label{subsec:subsystem_2_torso}
+The Torso Subsystem serves as the structural spine of the semi-humanoid robot, reacting dynamic arm forces, housing central electronics, and establishing anthropomorphic proportions.
+
+\subsubsection{Structural Aluminum Extrusion Spine and Shoulder Yoke}
+The structural backbone is fabricated from rigid 6061-T6 structural aluminum extrusions (combination of $40\text{ mm} \times 40\text{ mm}$ and $40\text{ mm} \times 80\text{ mm}$ heavy profiles) braced with CNC-machined $6\text{ mm}$ gusset plates. The mast extends vertically from the mobile base chassis to support an ergonomic shoulder yoke located at a nominal height of $850\text{--}950\text{ mm}$ above floor level. This shoulder height positions the dual arm end-effectors within natural reach of standard domestic tables ($750\text{ mm}$), kitchen counters ($900\text{ mm}$), and upper shelving units ($1350\text{ mm}$).
+
+\subsubsection{Waist Joint Actuation Allocation: CubeMars AK70-10 QDD}
+In the core baseline kinematic configuration, the torso functions as a rigid, fixed structural mast, providing maximum structural rigidity ($K$), completely eliminating dynamic mast deflection during high-speed reaching, lowering the system center of mass ($z_{\text{CoM}} \le 350\text{ mm}$), and locking the active joint chain at 18 active DoF. 
+
+To provide modularity and long-term research flexibility, the structural frame and project Bill of Materials (Table~\ref{tab:consolidated_bom}) allocate and procure a CubeMars AK70-10 Quasi-Direct Drive (QDD) actuator within the Torso Subsystem. This actuator can be configured as an active 1-DoF waist tilt joint near the torso base featuring:
+\begin{itemize}[leftmargin=1.5em]
+  \item A high-torque brushless permanent-magnet motor coupled to an integrated $10:1$ single-stage planetary gearbox.
+  \item A peak torque of $24.8\text{ N}\cdot\text{m}$ ($10.2\text{ N}\cdot\text{m}$ continuous) with low reflected inertia ($N^2 = 100$).
+  \item An integrated high-frequency FOC driver and dual 14-bit magnetic absolute encoders (measuring both motor rotor and gearbox output angles).
+\end{itemize}
+When enabled, the waist tilt joint provides a pitch articulation range of $\theta_{\text{waist}} \in [-15^\circ, +30^\circ]$, extending reach for floor-level pickup or pitching backward to counterbalance heavy forward arm extensions during payload transport.
+
+\subsubsection{Inertial Sensing and Thermal Management}
+Torso tilt feedback is monitored at $200\text{ Hz}$ by a BNO085 9-DOF IMU breakout incorporating an ARM Cortex-M0+ running Hillcrest Labs SensorHub fusion algorithms. The BNO085 outputs low-drift quaternion orientations ($\le 1.5^\circ$ dynamic error), enabling active balance stabilization and tipping detection.
+
+The torso houses the central compute module and power converters within an internal bay. An active forced-convection cooling kit---comprising an aluminum heatsink and a dual-ball-bearing PWM blower fan ($28\text{ CFM}$)---maintains internal temperatures below $55^\circ\text{C}$ under peak computational and electrical workloads.
+
+\subsubsection{Optional Modular Telescopic Elevation Column Add-on}
+For operational environments requiring extended floor-to-ceiling reach ($0\text{--}1600\text{ mm}$), the platform design supports an optional, modular Telescopic Elevation Column add-on, budgeted independently in the project Bill of Materials (Table~1 of the BOM). This module mounts directly between the mobile base chassis and the torso mast, comprising:
+\begin{itemize}[leftmargin=1.5em]
+  \item A heavy-duty 24V electric linear actuator providing $1500\text{ N}$ continuous thrust across a $300\text{ mm}$ stroke, equipped with an internal acme lead screw and dynamic power-off holding brake.
+  \item Precision linear guide rails and dual ball-bearing carriages that isolate the actuator drive rod from cantilevered bending moments generated by arm manipulation.
+  \item An ESP32-based Custom Column Driver PCB with an H-bridge driver and limit-switch interlocks.
+\end{itemize}
+Because the add-on is completely modular, it can be integrated into the mechanical assembly without modifying the core torso or drivetrain design.
+
+\subsection{Subsystems 3 \& 4: Dual 6-DoF Manipulator Arm Devices}
+\label{subsec:subsystems_3_4_arms}
+The platform incorporates dual anthropomorphic 6-DoF serial manipulators (Left Arm, Subsystem~3; Right Arm, Subsystem~4), engineered for safe physical interaction, high backdrivability, and low distal inertia.
+
+\subsubsection{Anthropomorphic 6-DoF Kinematic Topology}
+Each manipulator comprises six active revolute joints configured to match anthropomorphic human proportions:
+\begin{enumerate}[leftmargin=1.5em]
+  \item \textbf{Joint 1 (Shoulder Pitch, $\pm 120^\circ$):} Elevates and depresses the arm in the sagittal plane.
+  \item \textbf{Joint 2 (Shoulder Roll, $-30^\circ\text{ to }+110^\circ$):} Abducts and adducts the arm in the frontal plane.
+  \item \textbf{Joint 3 (Shoulder Yaw, $\pm 90^\circ$):} Internal and external humeral rotation along the upper-arm axis.
+  \item \textbf{Joint 4 (Elbow Pitch, $0^\circ\text{ to }+135^\circ$):} Flexes and extends the forearm.
+  \item \textbf{Joint 5 (Wrist Pitch, $\pm 90^\circ$):} Flexion and extension of the end-effector.
+  \item \textbf{Joint 6 (Wrist Roll, $\pm 180^\circ$):} Pronation and supination of the gripper assembly.
+\end{enumerate}
+This configuration provides complete 6-DoF Cartesian pose accessibility ($\mathbf{x}_{\text{EE}} \in SE(3)$), with upper-arm and forearm link lengths of $L_1 = 280\text{ mm}$ and $L_2 = 260\text{ mm}$, yielding a total spherical reach of $R_{\text{reach}} \approx 625\text{ mm}$ (including the gripper).
+
+\subsubsection{Hybrid Actuation Architecture and Sizing Rationale}
+A critical engineering innovation of this platform is its \emph{hybrid actuation architecture}, which strategically pairs Quasi-Direct Drive (QDD) actuators at the high-load proximal joints with compact serial bus servos at the distal wrist joints:
+
+\paragraph{Proximal Joints (Shoulder 3-DoF + Elbow 1-DoF):}
+Joints 1 through 4 are actuated by CubeMars AK70-10 QDD modules ($24.8\text{ N}\cdot\text{m}$ peak torque, $10:1$ planetary ratio, 4 units per arm, 8 units total across both arms). The low $10:1$ reduction ratio limits reflected rotor inertia:
+\begin{equation}
+  J_{\text{reflected}} = N^2 J_{\text{rotor}} = 100 \cdot J_{\text{rotor}},
+\end{equation}
+rendering the joints mechanically backdrivable. This backdrivability permits transparent proprioceptive torque estimation directly from motor phase currents:
+\begin{equation}
+  \tau_{\text{est}} = N K_\tau I_q - \tau_{\text{friction}}(\dot{q}),
+  \label{eq:proprioceptive_torque}
+\end{equation}
+where $K_\tau$ is the motor torque constant ($0.095\text{ N}\cdot\text{m/A}$) and $I_q$ is the active quadrature phase current. This enables high-fidelity compliance and collision detection without requiring delicate, expensive 6-axis wrist force-torque transducers.
+
+\paragraph{Distal Joints (Wrist Pitch + Wrist Roll):}
+Joints 5 and 6 are driven by Feetech STS3215 smart serial bus servos ($12\text{V}$, $2.9\text{ N}\cdot\text{m}$ stall torque, metal planetary gear train, contactless 12-bit magnetic absolute encoder, half-duplex TTL interface). 
+
+The engineering rationale for this hybrid division is governed by cantilever dynamics:
+\begin{equation}
+  \tau_{\text{shoulder}} = \sum_{k=1}^{6} m_k g r_{k,x} + m_{\text{payload}} g R_{\text{reach}}.
+\end{equation}
+If heavy QDD actuators ($m_{\text{AK70}} \approx 520\text{ g}$) were utilized at the wrist, their mass would generate an unproductive gravitational moment at the shoulder of:
+\begin{equation}
+  \Delta \tau_{\text{shoulder}} = 2 \cdot (0.52\text{ kg}) \cdot (9.81\text{ m/s}^2) \cdot (0.54\text{ m}) \approx 5.51\text{ N}\cdot\text{m},
+\end{equation}
+consuming more than $22\%$ of the shoulder actuator's peak capacity solely to support its own wrist motors. By deploying lightweight Feetech STS3215 servos ($m_{\text{STS}} \approx 55\text{ g}$), distal mass is reduced by nearly $90\%$, freeing substantial payload capacity ($2.0\text{--}3.0\text{ kg}$) and lowering arm actuation costs by more than $75\%$.
+
+\subsubsection{Embedded Architecture and Dual-Bus Arm Joint Interface PCB}
+Each arm is coordinated by a dedicated ESP32-WROOM-32 DevKitC mounted on a Custom Arm Joint Interface PCB. As shown in Figure~\ref{fig:arm_bus_topology}, the interface PCB bridges two physically disparate communication buses:
+\begin{enumerate}[leftmargin=1.5em]
+  \item \textbf{1 Mbps Differential CAN Bus (TWAI):} Connects the ESP32 to the daisy-chained internal FOC drivers of the four AK70-10 QDD actuators. Employs a 3.3V CAN transceiver (SN65HVD230) and split $120\,\Omega$ termination resistors. The ESP32 dispatches synchronous cyclic torque/position frames at $1\text{ kHz}$.
+  \item \textbf{1 Mbps Half-Duplex Serial TTL Bus:} Driven by the ESP32 UART2 peripheral via a 74HC126 tri-state buffer circuit. This single-wire differential line controls the two STS3215 wrist servos and the STS3032 gripper servo in a daisy-chain configuration, polling 12-bit positions and current feedback at $200\text{ Hz}$.
+\end{enumerate}
+
+\begin{figure}[htbp]
+\centering
+\resizebox{\linewidth}{!}{%
+\begin{tikzpicture}[
+    node distance=0.7cm and 1.1cm,
+    >=Latex,
+    every node/.style={font=\scriptsize, align=center},
+    mcu_node/.style={draw=navy, fill=sky!50, rounded corners=3pt, thick, minimum width=2.8cm, minimum height=1.4cm},
+    ic_node/.style={draw=teal, fill=teal!15, rounded corners=2pt, thick, minimum width=2.4cm, minimum height=0.75cm},
+    act_qdd/.style={draw=orange!90!black, fill=orange!20, rounded corners=3pt, thick, minimum width=2.3cm, minimum height=0.9cm},
+    act_servo/.style={draw=navy!80, fill=pale, rounded corners=3pt, thick, minimum width=2.3cm, minimum height=0.8cm},
+    pwr_rail/.style={draw=red!80!black, fill=red!10, rounded corners=2pt, font=\bfseries\tiny, minimum width=2.2cm, minimum height=0.5cm},
+    bus_can/.style={draw=teal, line width=1.4pt, double},
+    bus_ttl/.style={draw=navy, line width=1.3pt, densely dashed},
+    pwr_line/.style={draw=red!80!black, line width=1.2pt, dashed}
+]
+
+  % Coordinator MCU
+  \node[mcu_node] (esp32) {\textbf{ESP32-WROOM-32}\\\textbf{Arm Coordinator}\\(FreeRTOS RT-Loop)};
+
+  % Hardware ICs on Custom PCB
+  \node[ic_node, right=1.2cm of esp32, yshift=1.1cm] (can_xcvr) {\textbf{SN65HVD230}\\3.3V CAN Transceiver};
+  \node[ic_node, right=1.2cm of esp32, yshift=-1.1cm] (ttl_buffer) {\textbf{74HC126 Logic Buffer}\\Half-Duplex TTL Direction};
+
+  % Power rails
+  \node[pwr_rail, above=0.7cm of can_xcvr] (pwr_24v) {Cuttable 24V Motor Rail};
+  \node[pwr_rail, below=0.7cm of ttl_buffer] (pwr_12v) {Regulated 12V / 7.4V Logic};
+
+  % CAN QDD Chain (Joints 1 to 4)
+  \node[act_qdd, right=1.2cm of can_xcvr] (qdd1) {\textbf{Joint 1: Sh. Pitch}\\CubeMars AK70-10};
+  \node[act_qdd, right=0.8cm of qdd1] (qdd2) {\textbf{Joint 2: Sh. Roll}\\CubeMars AK70-10};
+  \node[act_qdd, right=0.8cm of qdd2] (qdd3) {\textbf{Joint 3: Sh. Yaw}\\CubeMars AK70-10};
+  \node[act_qdd, right=0.8cm of qdd3] (qdd4) {\textbf{Joint 4: Elbow}\\CubeMars AK70-10};
+
+  % TTL Servo Chain (Joints 5, 6 & Gripper)
+  \node[act_servo, right=1.2cm of ttl_buffer] (servo5) {\textbf{Joint 5: Wr. Pitch}\\Feetech STS3215};
+  \node[act_servo, right=0.8cm of servo5] (servo6) {\textbf{Joint 6: Wr. Roll}\\Feetech STS3215};
+  \node[act_servo, right=0.8cm of servo6] (gripper) {\textbf{End-Effector Gripper}\\Feetech STS3032};
+
+  % Grouping Box for PCB
+  \begin{scope}[on background layer]
+    \node[draw=teal, fill=teal!4, rounded corners=4pt, dashed, thick, fit=(esp32) (can_xcvr) (ttl_buffer), label={[teal, font=\bfseries\footnotesize]above:Custom Arm Joint Interface PCB}] (pcb_box) {};
+  \end{scope}
+
+  % Signals between ESP32 and ICs
+  \draw[->, thick, teal] ($(esp32.east)+(0,1.1)$) -- node[above, font=\tiny]{TWAI (TX/RX)} (can_xcvr.west);
+  \draw[<->, thick, navy] ($(esp32.east)+(0,-1.1)$) -- node[below, font=\tiny]{UART2 + DIR} (ttl_buffer.west);
+
+  % CAN Fieldbus Daisy Chain
+  \draw[bus_can] (can_xcvr.east) -- node[above, font=\tiny]{CAN\_H / CAN\_L} (qdd1.west);
+  \draw[bus_can] (qdd1.east) -- (qdd2.west);
+  \draw[bus_can] (qdd2.east) -- (qdd3.west);
+  \draw[bus_can] (qdd3.east) -- (qdd4.west);
+  \node[draw=teal, fill=white, rounded corners=1pt, right=0.2cm of qdd4, font=\tiny] (term) {$120\,\Omega$};
+  \draw[thick, teal] (qdd4.east) -- (term.west);
+
+  % Half-Duplex TTL Daisy Chain
+  \draw[bus_ttl] (ttl_buffer.east) -- node[below, font=\tiny]{Single-Wire TTL} (servo5.west);
+  \draw[bus_ttl] (servo5.east) -- (servo6.west);
+  \draw[bus_ttl] (servo6.east) -- (gripper.west);
+
+  % Power Connections
+  \draw[pwr_line] (pwr_24v.east) -| (qdd1.north);
+  \draw[pwr_line] (pwr_24v.east) -| (qdd2.north);
+  \draw[pwr_line] (pwr_24v.east) -| (qdd3.north);
+  \draw[pwr_line] (pwr_24v.east) -| (qdd4.north);
+
+  \draw[pwr_line] (pwr_12v.east) -| (servo5.south);
+  \draw[pwr_line] (pwr_12v.east) -| (servo6.south);
+  \draw[pwr_line] (pwr_12v.east) -| (gripper.south);
+
+\end{tikzpicture}%
+}
+\caption{Arm hybrid actuation and dual-bus control topology. The ESP32-WROOM-32 coordinator simultaneously drives the 1~Mbps differential CAN bus (controlling four CubeMars AK70-10 QDD actuators) and a 1~Mbps half-duplex serial TTL line (controlling two Feetech STS3215 wrist servos and the STS3032 gripper servo).}
+\label{fig:arm_bus_topology}
+\end{figure}
+
+\subsection{End-Effector: 2-Finger Parallel Gripper}
+\label{subsec:end_effector}
+Both arms terminate in a lightweight, modular 2-finger parallel-jaw gripper engineered for everyday object manipulation.
+
+\subsubsection{Mechanics and Linear Stroke}
+The gripper mechanism utilizes a symmetrical dual-rack-and-pinion transmission driven directly by a Feetech STS3032 compact serial bus servo ($7.4\text{V}$, $4.5\text{ N}\cdot\text{m}$ stall torque). The pinion engages two opposing hardened nylon racks guiding the fingers along miniature stainless steel linear rails, delivering a linear jaw stroke of:
+\begin{equation}
+  S_{\text{stroke}} = 0\text{--}85\text{ mm},
+\end{equation}
+with a full closing duration of $t_{\text{close}} \approx 0.35\text{ s}$. The $85\text{ mm}$ stroke accommodates the vast majority of domestic items, including drinking glasses, bottles, food cans, fruits, and small boxes.
+
+\subsubsection{Compliant Silicone Gripping Pads}
+The rigid 3D-printed fingers (Carbon-Fiber Reinforced PETG) are fitted with modular, vulcanized silicone pads featuring high-friction herringbone tread patterns ($\mu_{\text{friction}} \ge 0.85$ on dry glass/metal). The compliant silicone layer ($3\text{ mm}$ thickness, Shore 40A durometer) passively conforms to curved and irregular workpiece geometries, distributing contact pressures and preventing object slippage under dynamic arm accelerations.
+
+\subsubsection{Current-Based Grasp Force Regulation}
+The gripper achieves force-sensitive grasping without delicate external strain-gauge load cells by reading motor phase current feedback from the STS3032 servo:
+\begin{equation}
+  F_{\text{grip}} \approx \frac{K_{\tau,\text{servo}} \cdot I_{\text{servo}}}{r_{\text{pinion}}},
+\end{equation}
+where $r_{\text{pinion}} = 12\text{ mm}$ is the pitch radius of the drive gear. The ESP32 firmware monitors current draw at $200\text{ Hz}$. Upon detecting a steep current gradient indicating object contact, the controller clamps jaw motion to a programmable force setpoint ($F_{\text{target}} \in [5\text{ N}, 25\text{ N}]$), preventing the crushing of fragile objects (e.g., disposable plastic cups or ripe fruit).
+
+\subsection{Subsystem 5: Active Perception Head and Neck Device}
+\label{subsec:subsystem_5_head}
+The Active Perception Head acts as the visual and auditory sensory hub of the platform, supporting autonomous navigation, spatial manipulation, and human-robot dialogue.
+
+\subsubsection{2-DoF Pan-Tilt Kinematics}
+The head assembly is mounted atop the torso mast via a 2-DoF active pan-tilt gimbal mechanism driven by two Feetech STS3215 12V serial bus servos ($2.9\text{ N}\cdot\text{m}$ stall torque). The kinematic range provides:
+\begin{itemize}[leftmargin=1.5em]
+  \item \textbf{Pan Axis:} $\theta_{\text{pan}} \in [-90^\circ, +90^\circ]$ (horizontal azimuthal sweep).
+  \item \textbf{Tilt Axis:} $\theta_{\text{tilt}} \in [-45^\circ, +30^\circ]$ (downward workspace inspection to upward face tracking).
+\end{itemize}
+Because the entire sensor head payload (camera, microphones, speaker, and housing) weighs less than $450\text{ g}$, the STS3215 servos operate far below their thermal limits, achieving slew velocities up to $180^\circ/\text{s}$ for rapid saccadic gaze shifts.
+
+\subsubsection{Vision and Acoustic Transducers}
+\begin{itemize}[leftmargin=1.5em]
+  \item \textbf{Intel RealSense RGB-D Camera:} Streams active infrared stereo depth ($1280 \times 720$ at 30~fps) and full-color RGB frames via a USB~3.0 link directly to the Jetson Orin NX host. Operating over a range of $0.2\text{--}3.0\text{ m}$, it feeds both the 3D voxel TSDF reconstruction pipeline and the VLA policy visual encoder.
+  \item \textbf{ReSpeaker 2-Mic Pi HAT Array:} Incorporates dual omnidirectional microphones with an onboard stereo codec. Features hardware-accelerated acoustic echo cancellation (AEC) and Time-Difference-of-Arrival (TDOA) sound localization, allowing the head to turn autonomously toward speaking humans.
+  \item \textbf{2W Broad-Dispersion Speaker:} Driven by an onboard I2S Class-D audio amplifier, delivering clear synthesized speech dialogue, task feedback, and audible emergency alarms.
+\end{itemize}
+
+\subsubsection{Custom Head Interface PCB}
+An ESP32-WROOM-32 DevKitC and a Custom Head Interface PCB manage local pan-tilt servo commands, decode I2S audio streams, and drive an external addressable RGB LED indicator ring (displaying robot emotional state and system operational modes).
+
+\subsection{Subsystem 6: Power Distribution and Safety Subsystem}
+\label{subsec:subsystem_6_power}
+The Power Distribution and Safety Subsystem delivers clean, protected electrical energy across all active platform devices while enforcing fail-safe hardware disconnection.
+
+\subsubsection{Battery Chemistry and Energy Capacity}
+The primary electrical power source is a high-energy-density 24V, 20Ah Lithium Iron Phosphate (LiFePO$_4$) battery pack ($\sim 480\text{ Wh}$ nominal energy storage). Compared to standard Lithium-Ion (NMC) cells, LiFePO$_4$ chemistry offers superior thermal runaway resistance (thermal threshold $>270^\circ\text{C}$), an extended operational cycle life ($>2000$ cycles at $80\%$ DoD), and high continuous discharge capability ($2\text{C} = 40\text{A}$). 
+
+At a nominal continuous platform power draw of $115\text{ W}$ (35W compute + 30W idle actuators + 50W base transit), the $480\text{ Wh}$ pack guarantees an uninterrupted operational runtime of:
+\begin{equation}
+  t_{\text{runtime}} = \frac{480\text{ Wh} \cdot 0.85}{115\text{ W}} \approx 3.55\text{ hours},
+\end{equation}
+fully fulfilling Requirement~E02. The pack is paired with a dedicated 24V, 5A LiFePO$_4$ profile smart charger providing full recharge in approximately $4\text{ hours}$.
+
+\subsubsection{Galvanic Partitioning and Synchronous DC-DC Regulation}
+To eliminate ground loops and prevent actuator electromagnetic interference (EMI) from corrupting high-speed digital buses, power distribution is split across two architecturally separated domains:
+\begin{enumerate}[leftmargin=1.5em]
+  \item \textbf{Protected Logic Rail (Uncuttable 24V):} Feeds three high-efficiency ($>94\%$) synchronous buck regulators:
+  \begin{itemize}
+    \item $24\text{V} \to 19\text{V}$ ($6\text{A}$, $114\text{W}$ max): Supplies regulated power to the NVIDIA Jetson Orin NX host.
+    \item $24\text{V} \to 12\text{V}$ ($10\text{A}$, $120\text{W}$ max): Powers the Feetech serial bus servos, audio amplifiers, and cooling blowers.
+    \item $24\text{V} \to 5\text{V}$ ($10\text{A}$, $50\text{W}$ max): Supplies the distributed ESP32 microcontrollers, IMU, ultrasonic sensors, and LiDAR motor.
+  \end{itemize}
+  \item \textbf{Switched Motor Power Rail (Cuttable 24V):} Supplies raw battery voltage directly to the 9$\times$ CubeMars AK70-10 QDD actuators and the dual base BLDC gearmotors through a heavy-duty 24V, 40A continuous safety contactor relay.
+\end{enumerate}
+
+\subsubsection{Hardware Emergency Stop (E-Stop) Disconnect Circuit}
+Operational safety compliance (ISO~13482~\cite{iso13482}) is guaranteed via a dedicated, hardwired dual-channel safety circuit. A red latching mushroom E-Stop push-button is mounted prominently on the upper torso spine, wired in series with an optional wireless safety receiver. Depressing the E-Stop button breaks the coil circuit of the 40A safety contactor. Spring-loaded mechanical contacts disconnect the motor power rail in:
+\begin{equation}
+  t_{\text{disconnect}} \le 8\text{ ms} \ll 10\text{ ms} \quad (\text{Requirement E03}).
+\end{equation}
+Because the logic rail bypasses the contactor, compute, perception, wireless telemetry, and system diagnostic logs remain fully energized, allowing the robot to transmit immediate fault diagnostics without losing system state.
+
+\subsection{Subsystem 7: Central Compute and Communications}
+\label{subsec:subsystem_7_compute}
+Subsystem~7 centralizes high-level artificial intelligence inference, real-time trajectory generation, and multi-interface communications.
+
+\subsubsection{Primary Edge Compute: NVIDIA Jetson Orin NX 16 GB}
+High-level computational processing is performed by an NVIDIA Jetson Orin NX module (16~GB 128-bit LPDDR5 RAM, 1024-core NVIDIA Ampere architecture GPU with 32 Tensor Cores, and an 8-core Arm Cortex-A78AE v8.2 64-bit CPU). The module delivers up to 100~TOPS of sparse INT8 AI performance, comfortably accommodating parallel execution of:
+\begin{itemize}[leftmargin=1.5em]
+  \item Quantized multimodal VLA models (OpenVLA / $\pi_0$) running via TensorRT-LLM at $5\text{--}10\text{ Hz}$.
+  \item Real-time 3D Signed Distance Field (SDF) voxel mapping and depth-point registration.
+  \item 2D SLAM and MPPI local trajectory generation at $50\text{ Hz}$.
+\end{itemize}
+
+\subsubsection{Operating System and Real-Time Scheduling Architecture}
+The host runs Ubuntu 22.04 LTS (JetPack 6) patched with the PREEMPT\_RT real-time kernel. To eliminate thread contention and scheduling jitter, computational resources are partitioned using Linux Control Groups (\texttt{cgroups}) and CPU core affinity pinning:
+\begin{itemize}[leftmargin=1.5em]
+  \item \textbf{Cores 0--1 (Real-Time Middleware):} Isolated from standard Linux scheduling; dedicated exclusively to \texttt{ros2\_control}, fieldbus CAN I/O threads, and the $200\text{ Hz}$ state estimation UKF running under \texttt{SCHED\_FIFO} priority.
+  \item \textbf{Cores 2--5 (Mission Autonomy):} Executes Nav2 costmap processing, MoveIt~2 collision checking, and BehaviorTree.CPP evaluation.
+  \item \textbf{Cores 6--7 (Background Services):} Hosts the web server, WebRTC streaming pipeline, rosbridge WebSocket endpoints, and system logging.
+\end{itemize}
+
+\subsubsection{Communication Gateways and Network Infrastructure}
+\begin{itemize}[leftmargin=1.5em]
+  \item \textbf{Isolated USB-to-CAN Gateway:} Connects the Jetson host to the platform's primary 1~Mbps CAN bus, featuring optical galvanic isolation ($2.5\text{ kV}_{\text{RMS}}$) and hardware message timestamping ($<10\ \mu\text{s}$).
+  \item \textbf{Industrial Gigabit Network Switch:} Routes internal 1000BASE-T Ethernet between the Jetson host, external torso bulkhead RJ-45 service ports, and high-speed telemetry bridges.
+  \item \textbf{Dual-Band Wi-Fi 6 \& Bluetooth 5.2:} Provides high-throughput, low-latency wireless communication ($>600\text{ Mbps}$) for remote browser-based teleoperation, cloud fleet management, and remote software deployment.
+\end{itemize}
+
+\subsection{Subsystem 8: HMI, Web Dashboard, and Task Port Gateway}
+\label{subsec:subsystem_8_hmi}
+The Human-Machine Interface (HMI) establishes intuitive physical, browser-based, and algorithmic interfaces for operating and programming the semi-humanoid robot.
+
+\subsubsection{Physical Torso Panel and Bulkhead Ports}
+Mounted on the front and rear of the upper torso housing, the physical panel provides immediate local diagnostics and field service access:
+\begin{itemize}[leftmargin=1.5em]
+  \item \textbf{5--7'' Touchscreen Status Display:} Presents high-contrast system telemetry, including current Wi-Fi SSID and assigned IP address, battery State of Charge (SoC\%), active ROS~2 node states, actuator temperatures, and active error codes.
+  \item \textbf{Bulkhead Programming and Service Bay:} Features an industrial RJ-45 Gigabit Ethernet port, dual high-speed USB~3.0 service ports, a keyed master power switch, and a soft reboot button. This allows developers to flash microcontrollers, extract flight-recorder logs, and deploy software updates without dismantling chassis panels.
+\end{itemize}
+
+\subsubsection{Browser Web Dashboard and Teleoperation Console}
+Remote teleoperation and fleet monitoring are conducted via a responsive, single-page web dashboard developed using React, TypeScript, and TailwindCSS, communicating with the robot over WebRTC and WebSocket links:
+\begin{itemize}[leftmargin=1.5em]
+  \item \textbf{Low-Latency Teleoperation Console:} Streams low-latency ($<80\text{ ms}$) H.264 video from the RealSense camera via WebRTC. Operators can command mobile base translation and arm end-effector Cartesian jogging using virtual on-screen joysticks, standard keyboard hotkeys, or USB game controllers (via the HTML5 Gamepad API).
+  \item \textbf{Diagnostic Alarm Console:} Displays real-time visual alerts and audible warnings upon anomalous hardware states, such as actuator overtemperature ($T > 75^\circ\text{C}$), fieldbus packet loss, battery under-voltage ($\text{SoC} < 15\%$), or LiDAR point cloud occlusion.
+  \item \textbf{Interactive Task Programming (Macro Waypoint Recorder):} Enables non-expert operators to program complex mobile manipulation tasks graphically. The interface features a record-and-playback macro recorder: operators lead the compliant arm through a sequence of waypoints, save Cartesian and gripper states as named skills, and link them into executable behavior tree routines.
+\end{itemize}
+
+\subsubsection{Task Port Gateway: Decoupled ROS 2 Action Servers}
+The Task Port Gateway implements the software isolation boundary described in Section~\ref{sec:system_architecture}. It encapsulates low-level hardware complexity behind standardized ROS~2 Action servers:
+\begin{itemize}[leftmargin=1.5em]
+  \item \textbf{Navigation Action:} \texttt{/navigate\_to\_pose} dispatches $SE(2)$ goals to Nav2 (action type: \texttt{NavigateToPose}).
+  \item \textbf{Manipulation Actions:} \texttt{/pick\_object} and \texttt{/place\_object} command grasp and placement routines (action type: \texttt{PickObject}).
+  \item \textbf{Autonomous Docking Action:} \texttt{/dock\_robot} coordinates contact engagement with the dock (action type: \texttt{Dock}).
+\end{itemize}
+By forcing all cognitive models and external software pipelines to interact strictly through these typed Action endpoints, the Task Port Gateway guarantees that unexpected high-level crashes or network disconnects never jeopardize the physical integrity of the platform.

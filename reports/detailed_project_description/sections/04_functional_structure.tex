@@ -1,0 +1,208 @@
+\section{Functional Structure: Material, Energy, and Information Flows}
+\label{sec:functional_structure}
+
+\subsection{Overall System Function and Boundary Formulation (VDI 2206)}
+In accordance with the VDI~2206 design methodology for mechatronic and cyber-physical systems~\cite{vdi2206}, complex multidisciplinary machines are modeled through functional abstraction prior to physical embodiment. This abstraction decomposes the operational mission into an interconnected network of discrete sub-functions governed by the conservation laws of physics. 
+
+The conceptual model establishes a formal system boundary ($\mathcal{B}_{\text{system}}$) separating the internal mechatronic platform from the unconstrained operational environment. The environment contains the human operator, ambient acoustic noise, physical obstacles, structural furniture (tables, countertops, shelving), target workpieces, and external network links. Across this system boundary, the robot operates as an open thermodynamic and cybernetic transformation system, converting input flows into desired output states:
+\begin{equation}
+\mathbf{F}_{\text{total}}: \begin{bmatrix} \mathbf{M}_{\text{in}} \\ \mathbf{E}_{\text{in}} \\ \mathbf{I}_{\text{in}} \end{bmatrix} \xrightarrow{\quad \mathcal{B}_{\text{system}} \quad} \begin{bmatrix} \mathbf{M}_{\text{out}} \\ \mathbf{E}_{\text{out}} \\ \mathbf{I}_{\text{out}} \end{bmatrix}
+\end{equation}
+
+The primary black-box function of the modular semi-humanoid platform is formally formulated as:
+\begin{quote}
+\emph{Autonomously and safely transform unstructured multimodal human instructions and exteroceptive sensory observations into coordinated mobile navigation, dexterous dual-arm physical manipulation, spatial material rearrangement, and operational diagnostic telemetry within shared human-occupied environments.}
+\end{quote}
+
+This macro-function is decomposed into sub-functions organized across the three fundamental physical flows: \textbf{Material Flow ($\mathbf{M}$)}, \textbf{Energy Flow ($\mathbf{E}$)}, and \textbf{Information Flow ($\mathbf{I}$)}.
+
+\subsection{In-Depth Modeling of the Fundamental Physical Flows}
+
+\subsubsection{1. Material Flow \texorpdfstring{($\mathbf{M}$)}{(M)}}
+The material flow tracks all physical matter, target workpieces, environmental fixtures, and mechanical contact forces transferred across the platform boundary:
+\begin{itemize}[leftmargin=1.5em]
+  \item \textbf{Input Material States ($\mathbf{M}_{\text{in}}$):}
+  Target objects situated in the environment with unit masses ranging from $0.1\text{ kg}$ to $1.0\text{ kg}$ nominal (with peak holding capacity up to $1.5\text{ kg}$). Target workpieces encompass diverse geometric profiles, including household tableware (plates, ceramic mugs, bowls), beverage containers (glass bottles, aluminum cans, plastic jugs), dry packaged goods, small tools, and domestic fixtures (hinged cupboard doors and sliding drawers).
+  
+  \item \textbf{Discrete Material Sub-Functions:}
+  \begin{enumerate}[leftmargin=1.2em]
+    \item \emph{$M_1$: Workspace Approach \& Workpiece Alignment:} Position the mobile base and orient the 6-DoF arm to place the end-effector in pre-grasp alignment along the object's surface normal vectors ($\mathbf{n}_{\text{grasp}}$).
+    \item \emph{$M_2$: Grasp \& Secure Payload:} Actuate the parallel gripper jaws ($0\text{--}85\text{ mm}$ stroke) to establish contact. High-friction compliant silicone pads ($\mu_s \ge 0.8$) passively deform around the object geometry, generating normal clamping forces $F_N \in [15, 35]\text{ N}$ to establish stable force/form closure:
+    \begin{equation}
+      F_{\text{friction}} = 2 \mu_s F_N \ge m_{\text{payload}} (g + \|\mathbf{a}_{\text{dyn}}\|), \quad \text{with safety factor } \mathrm{SF} \ge 1.5
+    \end{equation}
+    \item \emph{$M_3$: Support Static and Dynamic Loads:} Transmit gravitational loads and dynamic acceleration reaction forces through the rigid links and bearings of the 6-DoF arm, into the fixed ergonomic space-frame torso, through the differential mobile base chassis, down to the wheel-ground contact patches.
+    \item \emph{$M_4$: Spatial $SE(3)$ Transport \& Coordinated Transit:} Relocate the grasped payload through three-dimensional space via coordinated differential base transit across floor surfaces and simultaneous multi-joint arm articulation.
+    \item \emph{$M_5$: Surface Contact Establishment, Placement \& Release:} Approach destination furniture surfaces (tables, countertops, or shelves between $500\text{--}1350\text{ mm}$ height), establish gentle contact, attenuate normal clamping forces, and retract the gripper jaws along a collision-free departure vector.
+    \item \emph{$M_6$: Articulate Environmental Fixtures:} Regulate contact forces along constrained kinematic trajectories to open or close hinged cabinet doors and sliding drawers without inducing mechanical binding.
+  \end{enumerate}
+
+  \item \textbf{Output Material States ($\mathbf{M}_{\text{out}}$):}
+  Rearranged target objects placed in stable static equilibrium on designated surfaces, reconfigured architectural fixtures (opened/closed cabinets), and secured cargo during autonomous transit.
+\end{itemize}
+
+\subsubsection{2. Energy Flow \texorpdfstring{($\mathbf{E}$)}{(E)}}
+The energy flow models the intake, electrochemical storage, regulation, conversion, and dissipation of power across the robot's physical domains:
+\begin{itemize}[leftmargin=1.5em]
+  \item \textbf{Input Energy States ($\mathbf{E}_{\text{in}}$):}
+  Onboard electrical storage provided by a $24\text{ V}$ nominal (8S configuration, $25.6\text{ V}$ nominal, $20\text{ Ah}$, $\sim 480\text{ Wh}$) Lithium Iron Phosphate ($\text{LiFePO}_4$) battery pack, supplemented by periodic external $110\text{--}230\text{ V AC}$ single-phase grid power supplied via an external dock charger.
+  
+  \item \textbf{Discrete Energy Sub-Functions:}
+  \begin{enumerate}[leftmargin=1.2em]
+    \item \emph{$E_1$: Electrochemical Energy Storage:} Store energy within chemically stable $\text{LiFePO}_4$ cells offering high thermal stability (preventing thermal runaway up to $>200^\circ\text{C}$) and extensive cycle life ($>2000$ cycles at $80\%$ depth of discharge).
+    \item \emph{$E_2$: Safety Interlocking \& Battery Management:} An integrated Battery Management System (BMS) continuously monitors individual cell voltages ($2.5\text{--}3.65\text{ V}$), total current, and pack temperatures. In series with the pack, dual-channel certified safety contactors provide a hardware-level emergency power cutoff ($\le 10\text{ ms}$ response) that isolates actuator power during emergency-stop conditions.
+    \item \emph{$E_3$: Galvanic Isolation \& Multi-Rail DC-DC Power Conditioning:} Regulate the primary battery bus ($20.0\text{--}28.8\text{ V}$) into four dedicated, galvanically isolated voltage domains to suppress motor switching transients and eliminate ground loops:
+    \begin{itemize}
+      \item \emph{High-Power Motor Rail ($24\text{ V}$ Unregulated/Filtered):} Delivers high peak currents ($>40\text{ A}$) to the differential drive wheel inverters, 12 arm actuators, and 2 gripper motors.
+      \item \emph{Compute Rail ($19\text{ V DC}$, $10\text{ A}$, $190\text{ W}$):} Synchronous buck converter supplying clean, regulated power to the primary NVIDIA Jetson edge AI host computer.
+      \item \emph{Perception Rail ($12\text{ V DC}$, $5\text{ A}$, $60\text{ W}$):} Regulated power for the planar 2D LiDAR scanner, active stereo RGB-D head camera, and audio power amplifier.
+      \item \emph{Logic Rail ($5\text{ V} / 3.3\text{ V DC}$, $5\text{ A}$, $25\text{ W}$):} Galvanically isolated DC-DC stages powering distributed ESP32 microcontrollers, CAN transceivers, optoisolators, and network switches with $>40\text{ dB}$ common-mode noise rejection.
+    \end{itemize}
+    \item \emph{$E_4$: Pulse-Width Modulation Inversion:} Three-phase MOSFET/GaN inverter bridges modulate DC power into sinusoidal three-phase AC currents using Field-Oriented Control (FOC) at switching frequencies $f_{\text{PWM}} = 20\text{--}40\text{ kHz}$.
+    \item \emph{$E_5$: Electromechanical Conversion:} Brushless DC (BLDC) and permanent-magnet synchronous motors (PMSM) convert electrical power into mechanical torque and angular velocity:
+    \begin{equation}
+      P_{\text{mech}} = \sum_{i=1}^{18} \tau_i \omega_i = P_{\text{elec}} - P_{\text{copper}} - P_{\text{iron}} - P_{\text{friction}}
+    \end{equation}
+    \item \emph{$E_6$: Kinetic Energy Management \& Thermal Dissipation:} Absorb decelerating kinetic energy via dynamic braking with resistive bleeder circuits; conduct Joule heating ($I^2 R$) and inverter losses away from motors into aluminum structural members, expelling waste heat through forced convection.
+  \end{enumerate}
+
+  \item \textbf{Output Energy States ($\mathbf{E}_{\text{out}}$):}
+  Controlled mechanical work exerted on manipulated objects and mobile surfaces ($\mathbf{W}_{\text{ext}} = \int \mathbf{F} \cdot d\mathbf{x}$), convective thermal heat loss ($Q_{\text{thermal}}$), and electrical dissipation during dynamic braking.
+\end{itemize}
+
+\subsubsection{3. Information Flow \texorpdfstring{($\mathbf{I}$)}{(I)}}
+The information flow models signal acquisition, sensory state estimation, cognitive reasoning, deterministic feedback control, and diagnostic telemetry:
+\begin{itemize}[leftmargin=1.5em]
+  \item \textbf{Input Information States ($\mathbf{I}_{\text{in}}$):}
+  Acoustic human speech captured by an onboard microphone array, planar distance returns from a $360^\circ$ 2D LiDAR, stereo RGB-D imagery and infrared depth maps, 14-bit magnetic absolute joint encoder signals, motor phase shunt currents, and operator teleoperation packets transmitted over 5~GHz Wi-Fi / Ethernet.
+  
+  \item \textbf{Discrete Information Sub-Functions:}
+  \begin{enumerate}[leftmargin=1.2em]
+    \item \emph{$I_1$: Signal Conditioning \& Digitization:} Execute analog-to-digital conversion, anti-aliasing filtering, and high-speed SPI/quadrature decoding for joint position and motor current telemetry.
+    \item \emph{$I_2$: Exteroceptive State Estimation \& SLAM:} Execute 2D LiDAR SLAM and adaptive Monte Carlo localization (AMCL) to maintain global base pose $\mathbf{T}_{\text{base}} \in SE(2)$; generate local costmaps for dynamic obstacle avoidance; perform 3D point cloud filtering, plane segmentation, and 6D object pose registration.
+    \item \emph{$I_3$: Voice Command Parsing \& Speech-to-Text:} Execute onboard OpenAI Whisper automatic speech recognition ($\le 1.5\text{ s}$ inference latency), converting raw acoustic audio into structured text; extract semantic intent and target object tokens.
+    \item \emph{$I_4$: Cognitive Task Planning \& AI Reasoning:} Behavior Trees coordinate sequential mission logic; Vision-Language-Action (VLA) foundation models (OpenVLA, RT-X) predict multimodal action tokens at $\ge 10\text{ Hz}$; MoveIt~2 computes collision-free kinematic trajectories in Cartesian task space.
+    \item \emph{$I_5$: Task Port Supervisory Validation:} Shield low-level actuators by intercepting all planned trajectories; validate kinematic boundaries, joint velocity/acceleration limits, singularity proximities, and ISO~13482 collaborative speed and separation distances.
+    \item \emph{$I_6$: Hard Real-Time Closed-Loop Motion Regulation:} Distributed embedded microcontrollers execute cascaded FOC loops (current loop at $10\text{--}20\text{ kHz}$; velocity and position/impedance loops at $500\text{--}1000\text{ Hz}$ with jitter $\le 50\ \mu\text{s}$) synchronized across isolated CAN FD / CAN 2.0B fieldbus channels.
+    \item \emph{$I_7$: Diagnostic Telemetry \& Web Dashboard Streaming:} Continuously aggregate battery state of charge (SoC), individual cell voltages, motor temperatures, fieldbus error counters, and camera feeds; stream real-time telemetry via WebRTC/WebSockets to an interactive web dashboard ($\le 100\text{ ms}$ teleoperation latency) with automated visual/audible alarms.
+  \end{enumerate}
+
+  \item \textbf{Output Information States ($\mathbf{I}_{\text{out}}$):}
+  High-frequency gate drive PWM switching patterns ($20\text{--}40\text{ kHz}$), synthesized voice audio emitted through onboard loudspeakers, web dashboard status visualizations, and physical diagnostic LED patterns.
+\end{itemize}
+
+\subsection{Functional Structure Diagram}
+Figure~\ref{fig:functional_structure} presents the comprehensive functional structure of the modular semi-humanoid platform in accordance with VDI~2206. The diagram illustrates the topological arrangement of sub-functions and depicts the cross-coupling between Material ($\mathbf{M}$), Energy ($\mathbf{E}$), and Information ($\mathbf{I}$) flows across the system boundary ($\mathcal{B}_{\text{system}}$).
+
+\begin{figure}[ht!]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+    >=Latex,
+    node distance=0.8cm and 0.9cm,
+    font=\footnotesize,
+    f_block/.style={draw=navy, fill=sky!30, rounded corners=3pt, thick, align=center, inner sep=5pt, minimum height=1.1cm},
+    e_block/.style={draw=orange!80!black, fill=orange!15, rounded corners=3pt, thick, align=center, inner sep=5pt, minimum height=1.1cm},
+    m_block/.style={draw=navy!90, fill=pale, rounded corners=3pt, thick, align=center, inner sep=5pt, minimum height=1.1cm},
+    io_node/.style={draw=gray!80, fill=white, rounded corners=2pt, align=center, inner sep=4pt, font=\scriptsize},
+    flowM/.style={-{Latex[length=2.8mm]}, line width=2.0pt, navy},
+    flowE/.style={-{Latex[length=2.4mm]}, line width=1.4pt, orange!90!black, dashed},
+    flowI/.style={-{Latex[length=2.2mm]}, line width=1.1pt, teal}
+]
+
+  % --- System Boundary Box Coordinates ---
+  \draw[navy!60, dashed, thick, rounded corners=6pt, fill=navy!2] (0, -0.6) rectangle (15.2, 8.6);
+  \node[anchor=north west, font=\bfseries\small, text=navy] at (0.2, 8.45) {System Boundary $\mathcal{B}_{\text{system}}$};
+
+  % =========================================================================
+  % ROW 1: INFORMATION FLOW PIPELINE (y ~ 7.0)
+  % =========================================================================
+  \node[io_node, anchor=east] (in_I) at (-0.4, 7.0) {\textbf{$\mathbf{I}_{\text{in}}$: Input Information}\\$\bullet$ Speech Audio (Mic Array)\\$\bullet$ $360^\circ$ 2D LiDAR Scans\\$\bullet$ RGB-D Video \& Depth\\$\bullet$ Joint Encoders / Currents\\$\bullet$ Web Teleoperation Goals};
+
+  \node[f_block, minimum width=2.6cm] (f_sense) at (2.0, 7.0) {\textbf{Acquire \& Digitize}\\Signal Conditioning,\\ADC, SPI/Quadrature};
+
+  \node[f_block, minimum width=2.8cm] (f_perceive) at (5.5, 7.0) {\textbf{Perceptual State}\\\textbf{Estimation \& STT}\\LiDAR SLAM / Costmap,\\Whisper STT, 3D Pose};
+
+  \node[f_block, minimum width=2.8cm] (f_plan) at (9.1, 7.0) {\textbf{Cognitive Reasoning}\\\textbf{\& Trajectory Planning}\\Behavior Trees, VLA AI,\\MoveIt 2 Kinematics};
+
+  \node[f_block, minimum width=2.6cm] (f_supervise) at (12.6, 7.0) {\textbf{Task Port Action}\\\textbf{Server \& Safety}\\Limit Check, E-Stop Logic,\\ISO 13482 Validation};
+
+  \node[f_block, minimum width=2.8cm] (f_control) at (12.6, 4.9) {\textbf{Hard Real-Time}\\\textbf{Motion Regulation}\\$1\text{ kHz}$ FOC Loops,\\CAN FD + Encoder Feedback};
+
+  \node[io_node, anchor=west] (out_I) at (15.6, 7.0) {\textbf{$\mathbf{I}_{\text{out}}$: Output Information}\\$\bullet$ Web Telemetry ($\le 100\text{ ms}$)\\$\bullet$ Visual / Audible Alarms\\$\bullet$ TTS Voice Feedback\\$\bullet$ Status LED Patterns};
+
+  % Information connections
+  \draw[flowI] (in_I.east) -- (f_sense.west);
+  \draw[flowI] (f_sense.east) -- node[above, font=\tiny]{$\mathbf{I}_{\text{raw}}$} (f_perceive.west);
+  \draw[flowI] (f_perceive.east) -- node[above, font=\tiny]{$\mathbf{I}_{\text{state}}$} (f_plan.west);
+  \draw[flowI] (f_plan.east) -- node[above, font=\tiny]{$\mathbf{I}_{\text{traj}}$} (f_supervise.west);
+  \draw[flowI] (f_supervise.south) -- node[right, font=\tiny]{$\mathbf{I}_{\text{cmd}}$} (f_control.north);
+  \draw[flowI] (f_supervise.east) -- (out_I.west);
+
+  % =========================================================================
+  % ROW 2: ENERGY FLOW PIPELINE (y ~ 3.2)
+  % =========================================================================
+  \node[io_node, anchor=east] (in_E) at (-0.4, 3.2) {\textbf{$\mathbf{E}_{\text{in}}$: Input Energy}\\$\bullet$ $24\text{V } 20\text{Ah LiFePO}_4$ Pack\\$\bullet$ External $110/230\text{V}$ AC};
+
+  \node[e_block, minimum width=2.6cm] (f_store) at (2.0, 3.2) {\textbf{Electrochemical}\\\textbf{Energy Storage}\\$8\text{S LiFePO}_4$ Battery,\\BMS Balancing};
+
+  \node[e_block, minimum width=2.8cm] (f_estop) at (5.5, 3.2) {\textbf{Safety Disconnect}\\\textbf{\& Conditioning}\\Dual E-Stop Relays\\($\le 10\text{ ms}$ Disconnect)};
+
+  \node[e_block, minimum width=2.8cm] (f_dcdc) at (9.1, 3.2) {\textbf{Isolated DC-DC}\\\textbf{Multi-Rail Buck}\\$19\text{V}$ GPU, $12\text{V}$ Sensor,\\$5\text{V}/3.3\text{V}$ Isolated Logic};
+
+  \node[e_block, minimum width=2.6cm] (f_inverter) at (12.6, 3.2) {\textbf{Three-Phase Inverters}\\\textbf{\& PWM Drivers}\\FOC Bridge Switching\\($20\text{--}40\text{ kHz}$ PWM)};
+
+  % Energy internal connections
+  \draw[flowE] (in_E.east) -- (f_store.west);
+  \draw[flowE] (f_store.east) -- node[above, font=\tiny]{$24\text{V}$} (f_estop.west);
+  \draw[flowE] (f_estop.east) -- node[above, font=\tiny]{$24\text{V}_{\text{safe}}$} (f_dcdc.west);
+  \draw[flowE] (f_dcdc.east) -- node[above, font=\tiny]{$24\text{V}_{\text{pwr}}$} (f_inverter.west);
+
+  % Regulated sensor and compute rails are summarized in the DC-DC block.
+
+  % Control signals to inverter
+  \draw[flowI] (f_control.south) -- node[right, font=\tiny]{$\mathbf{I}_{\text{PWM}}$} (f_inverter.north);
+
+  % =========================================================================
+  % ROW 3: MATERIAL FLOW & ACTUATION PIPELINE (y ~ 0.8)
+  % =========================================================================
+  \node[io_node, anchor=east] (in_M) at (-0.4, 0.8) {\textbf{$\mathbf{M}_{\text{in}}$: Target Matter}\\$\bullet$ Workpieces ($0.1\text{--}1.0\text{ kg}$)\\$\bullet$ Tableware, Bottles, Boxes\\$\bullet$ Cabinet Doors, Drawers};
+
+  \node[m_block, minimum width=3.4cm] (f_actuate) at (2.4, 0.8) {\textbf{Electromechanical Drive}\\2 Differential Hub Motors,\\12 Arm Actuators (Dual 6-DoF)};
+
+  \node[m_block, minimum width=3.6cm] (f_transport) at (6.8, 0.8) {\textbf{Spatial Transit \& Frame}\\Differential Chassis Transit,\\Fixed Space-Frame Torso};
+
+  \node[m_block, minimum width=3.4cm] (f_grip) at (11.2, 0.8) {\textbf{Grasp, Support \& Place}\\Dual Parallel Grippers\\($0\text{--}85\text{ mm}$, $15\text{--}35\text{ N}$ Silicone)};
+
+  \node[io_node, anchor=west] (out_M) at (15.6, 0.8) {\textbf{$\mathbf{M}_{\text{out}}$: Rearranged State}\\$\bullet$ Reordered Tableware\\$\bullet$ Relocated Cargo\\$\bullet$ Opened/Closed Fixtures};
+
+  % Power conversion to mechanical work
+  \draw[flowE] (f_inverter.south) -- ++(0, -0.6) -| node[pos=0.25, above, font=\tiny]{Three-Phase AC} (f_actuate.north);
+
+  % Material flow connections
+  \draw[flowM] (in_M.east) -- (f_actuate.west);
+  \draw[flowM] (f_actuate.east) -- node[above, font=\tiny]{$\mathbf{M}_{\text{motion}}$} (f_transport.west);
+  \draw[flowM] (f_transport.east) -- node[above, font=\tiny]{$\mathbf{M}_{\text{reach}}$} (f_grip.west);
+  \draw[flowM] (f_grip.east) -- (out_M.west);
+
+  % Thermal / Mechanical energy dissipation
+  \node[io_node, anchor=west] (out_E) at (15.6, 3.2) {\textbf{$\mathbf{E}_{\text{out}}$: Dissipated Energy}\\$\bullet$ Useful Work $\mathbf{W}_{\text{ext}}$\\$\bullet$ Heat $Q_{\text{thermal}}$ (Chassis Convection)\\$\bullet$ Braking Energy Bleed};
+  \draw[flowE] (f_inverter.east) -- (out_E.west);
+
+  % Encoder and current feedback return through the CAN fieldbus noted in the control block.
+
+  % =========================================================================
+  % LEGEND (y ~ -0.1)
+  % =========================================================================
+  \node[anchor=south west, font=\scriptsize, draw=navy!40, fill=white, rounded corners=2pt, inner sep=4pt] at (0.2, -0.45) {
+    \textbf{Flow Legend:}\quad
+    \tikz[baseline=-0.5ex]{\draw[flowM] (0,0) -- (0.6,0);} Material Flow ($\mathbf{M}$)\quad
+    \tikz[baseline=-0.5ex]{\draw[flowE] (0,0) -- (0.6,0);} Energy Flow ($\mathbf{E}$)\quad
+    \tikz[baseline=-0.5ex]{\draw[flowI] (0,0) -- (0.6,0);} Information Flow ($\mathbf{I}$)
+  };
+
+\end{tikzpicture}%
+}
+\caption{Comprehensive functional structure of the modular semi-humanoid platform in accordance with VDI~2206, showing the interconnected transformation of Material ($\mathbf{M}$), Energy ($\mathbf{E}$), and Information ($\mathbf{I}$) flows across the system boundary.}
+\label{fig:functional_structure}
+\end{figure}

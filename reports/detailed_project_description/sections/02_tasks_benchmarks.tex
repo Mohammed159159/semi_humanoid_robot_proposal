@@ -1,0 +1,267 @@
+\section{Empirical Task Formulation and Benchmark Derivation}
+\label{sec:tasks_benchmarks}
+
+\subsection{Grounding Operational Objectives in Standardized Robotics Benchmarks}
+Engineering a general-purpose robotic platform requires establishing operational targets that reflect the physical and cognitive challenges of real-world deployment. In academic literature, robotics projects frequently falter by engineering custom mechanisms tailored to arbitrary, isolated laboratory tasks (e.g., grasping a single specific cylinder on an uncluttered bench). When transferred to unconstrained human environments, such bespoke systems fail due to inadequate kinematic workspace, insufficient payload margins, rigid actuation, or brittle perceptual assumptions.
+
+To ground the platform's functional specifications in validated real-world requirements, this project derives its operational primitives from international competitive service robotics leagues and certified industrial safety standards. These benchmarks capture the environmental variability, clutter, geometric diversity, and dynamic human interactions inherent to human-inhabited spaces.
+
+\subsubsection{The RoboCup@Home Benchmark Suite}
+The international RoboCup@Home competition represents the premier global benchmark for autonomous service and domestic robotics~\cite{robocupathome}. Spanning the Domestic Standard Platform League (DSPL), Open Platform League (OPL), and Social Standard Platform League (SSPL), RoboCup@Home assesses mobile manipulators within realistic, fully furnished domestic apartments and office environments. Analyzing rulebooks, technical challenge papers, and operational logs reveals four canonical benchmark tasks that establish the minimum functional envelope of our platform:
+
+\begin{enumerate}[leftmargin=1.5em]
+  \item \textbf{General Purpose Service Robot (GPSR):} The GPSR benchmark assesses physical and cognitive generalization without prior environment tuning. High-level commands are generated dynamically via formal grammar engines, categorised into three escalating complexity tiers:
+  \begin{itemize}[leftmargin=1.2em]
+    \item \emph{Category I (Fully Specified Tasks):} The command explicitly states the required action sequence, target object, and destination (e.g., ``Navigate to the dining table, grasp the green soda can, and place it into the waste basket''). This tier benchmarks deterministic pipeline execution: autonomous Simultaneous Localization and Mapping (SLAM), 3D point-cloud object segmentation, inverse kinematic reachability, and grasp execution.
+    \item \emph{Category II (Contextual Tasks):} The command contains ambiguous or missing spatial or semantic information (e.g., ``Bring me a beverage from the kitchen''). The platform must perform semantic spatial reasoning, inspect candidate storage locations across multiple shelf tiers ($300\text{--}1350\text{ mm}$), and initiate spoken clarification dialogue through speech synthesis and directional microphone arrays.
+    \item \emph{Category III (Erroneous and Contradictory Tasks):} The command involves physical impossibilities, missing items, or obstructed paths (e.g., requesting an item not present in the room). The robot must verify scene state discrepancies, detect tactile or visual grasp failures, abort hazardous actions safely, verbally articulate the failure mode to human users, and execute fallback behaviors.
+  \end{itemize}
+  
+  \item \textbf{Clean Up and Table Clearing Benchmark:} This task formalizes physical environment rearrangement over the special Euclidean group $SE(3) = \mathbb{R}^3 \times SO(3)$. The autonomous agent must transform an unorganized environment from an initial state $s_0 \in \mathcal{S}$ to a desired tidy configuration $s^* \in \mathcal{S}$ through direct physical contact. The robot must approach standard dining surfaces, segment cluttered tableware (cups, ceramic bowls, silverware, beverage bottles), estimate surface normals, and execute multi-angle grasps without toppling adjacent fragile objects. Furthermore, clearing tableware requires transporting items and placing them into confined dishwasher racks or designated storage bins.
+  
+  \item \textbf{Interaction with Articulated Domestic Fixtures:} Service environments demand interaction with kinematically constrained fixtures. The robot must approach, unlatch, open, and close hinged cupboard doors, sliding drawers, and spring-loaded refrigerator doors. These operations impose closed kinematic chain constraints where the end-effector trajectory $\mathbf{x}_{\text{EE}}(t)$ is constrained along a 1-DoF circular arc or prismatic rail, requiring compliant contact force regulation ($F_{\text{contact}} \le 30\text{--}50\text{ N}$) to prevent excessive internal stresses.
+  
+  \item \textbf{Receptionist, Person Following, and Physical Object Handover:} This benchmark evaluates social co-presence and continuous physical human-robot interaction (pHRI). The platform must detect human poses, identify unfamiliar individuals, maintain continuous visual tracking during guided navigation ($v_{\text{walk}} \le 1.2\text{ m/s}$), and preserve proxemic personal zones ($0.8\text{--}1.5\text{ m}$). During physical handovers (delivering a beverage or taking a carry bag), the robot must dynamically adjust arm trajectory to the human hand pose, detect contact via wrist force-torque sensing or motor current monitoring, and execute smooth, intentional payload releases at safe approach velocities ($v_{\text{EE}} \le 0.3\text{ m/s}$).
+\end{enumerate}
+
+\subsubsection{World Robot Summit (WRS) Partner Robot Challenge}
+The World Robot Summit (WRS) Partner Robot Challenge~\cite{wrs} provides complementary empirical validation protocols centered on daily life assistance in standard living spaces. The WRS benchmark emphasizes:
+\begin{itemize}[leftmargin=1.5em]
+  \item \textbf{Tidy-Up Operations in Cluttered Living Rooms:} Retrieval of deformable objects (clothing, blankets), thin items lying flat on the floor (pens, paper sheets), and small accessories stored inside low drawers ($200\text{--}400\text{ mm}$ height).
+  \item \textbf{Continuous Execution Autonomy:} Penalizing teleoperation interventions and rewarding continuous, uninterrupted multi-step task execution over extended time horizons ($15\text{--}30\text{ minutes}$).
+  \item \textbf{Strict Safety Penalties:} Automatic disqualification or severe scoring deductions for collisions with furniture walls exceeding dynamic impact thresholds ($>20\text{ N}$).
+\end{itemize}
+
+\subsubsection{Safety Certification Standards: ISO 13482:2014}
+Deploying mobile manipulators in human-inhabited environments requires rigorous adherence to safety standards. The platform is engineered to comply with \textbf{ISO~13482:2014} (``Robots and robotic devices --- Safety requirements for personal care robots'')~\cite{iso13482}, under the classification of a \emph{mobile servant robot}. Key mandates governing the mechatronic design include:
+\begin{itemize}[leftmargin=1.5em]
+  \item \textbf{Hazard Mitigation and Risk Reduction:} Systematic elimination of mechanical pinch and shear points at articulated arm joints, torso elevation columns, and wheel cowlings.
+  \item \textbf{Emergency Stop and Operational Interlocks:} Integration of a Category~3, Performance Level~d (PL~d) dual-channel safety circuit capable of de-energizing all actuator drive inverters within $t_{\text{stop}} \le 10\text{ ms}$ upon E-stop actuation or safety LiDAR field breach.
+  \item \textbf{Limitation of Contact Forces and Speed:} Adherence to collaborative power and force limiting principles (incorporating ISO/TS 15066 guidelines), ensuring transient impact forces remain below human pain thresholds ($F_{\text{impact}} \le 150\text{ N}$, quasi-static crushing force $F_{\text{crush}} \le 50\text{--}75\text{ N}$), supported by backdrivable Quasi-Direct Drive (QDD) actuators and soft-skinned compliant end effectors.
+  \item \textbf{Overturning Stability:} Maintaining static and dynamic stability under maximum arm reach ($R_{\text{arm}} \approx 750\text{ mm}$), maximum continuous payload ($m_{\text{load}} = 3.0\text{ kg}$ per arm), and maximum base deceleration ($a_{\text{base}} = 1.0\text{ m/s}^2$).
+\end{itemize}
+
+\begin{table}[htbp]
+\centering\small
+\caption{Systematic derivation of mechatronic primitives and physical constraints from empirical benchmarks.}
+\label{tab:benchmark_mapping}
+\begin{tabularx}{\textwidth}{@{}lYYY@{}}
+\toprule
+\textbf{Benchmark Source} & \textbf{Operational Sub-Tasks} & \textbf{Underlying Mechatronic Primitives} & \textbf{Physical \& Environmental Constraints} \\
+\midrule
+RoboCup@Home GPSR (Cat.~I)~\cite{robocupathome} & Autonomous pick-and-place, point-to-point transit, object sorting & Holonomic SLAM navigation, 3D point-cloud registration, $SE(3)$ trajectory generation, parallel grasp & Doorway width $\ge 750\text{ mm}$; table height $720\text{--}750\text{ mm}$; item mass $\le 1.5\text{ kg}$ \\
+\addlinespace[0.4em]
+RoboCup@Home GPSR (Cat.~II)~\cite{robocupathome} & Contextual item retrieval, dialogue clarification, shelf search & Directional audio parsing (STT), semantic mapping, active pan-tilt visual search, multi-height reach & Ambient acoustic noise $50\text{--}65\text{ dB}$; multi-tier shelf search ($300\text{--}1350\text{ mm}$) \\
+\addlinespace[0.4em]
+RoboCup@Home GPSR (Cat.~III)~\cite{robocupathome} & Discrepancy detection, grasp slip detection, safety abort & Proprioceptive current monitoring, wrist F/T tactile sensing, speech synthesis (TTS), exception recovery & Dynamic human obstacles; safe deceleration $a_{\text{dec}} \le 1.0\text{ m/s}^2$; timeout $\le 5\text{ min}$ \\
+\addlinespace[0.4em]
+Clean Up \& Table Clearing~\cite{robocupathome} & Tableware segmentation, dishwasher loading, surface clearing & Dense RGB-D normal estimation, compliant grasp closure, high-accuracy Cartesian positioning ($\le \pm 2\text{ mm}$) & Fragile ceramic/glass targets; grasp span $20\text{--}90\text{ mm}$; vertical clearance $\le 350\text{ mm}$ \\
+\addlinespace[0.4em]
+WRS Partner Robot~\cite{wrs} & Tidy-up from floor, articulated drawer/door opening & Ground-level reaching ($z = 0\text{ mm}$), constrained circular/prismatic path following, impedance control & Floor-level grasping; pulling forces up to $40\text{ N}$; zero wall collision damage \\
+\addlinespace[0.4em]
+Receptionist \& Handover~\cite{robocupathome} & Person following, proxemic navigation, compliant physical handover & 2D/3D human skeletal tracking, dynamic costmap avoidance, soft wrist impedance, release timing & Human walking speed $\le 1.2\text{ m/s}$; social distance $0.8\text{--}1.5\text{ m}$; handover speed $\le 0.3\text{ m/s}$ \\
+\addlinespace[0.4em]
+ISO 13482 Compliance~\cite{iso13482} & Safe co-presence, emergency stop, physical impact limitation & Dual-channel hardware E-stop, software safety supervisory monitor, backdrivable QDD actuation & Safety cutoff $t_{\text{stop}} \le 10\text{ ms}$; impact force $F \le 150\text{ N}$; crushing force $\le 50\text{ N}$ \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Physical Boundary Conditions and Kinematic Sizing}
+Synthesizing the empirical requirements from Table~\ref{tab:benchmark_mapping} directly dictates the geometric envelope and kinematic reach of the semi-humanoid platform:
+
+\begin{itemize}[leftmargin=1.5em]
+  \item \textbf{Doorway Clearances and Base Footprint:} Standard residential and commercial interior doorways exhibit clear aperture widths between $750\text{ mm}$ and $900\text{ mm}$. To guarantee safe, collision-free transit with an adequate lateral clearance margin ($\ge 75\text{--}100\text{ mm}$ per side), the maximum mobile base footprint diameter is constrained to:
+  \begin{equation}
+  D_{\text{base}} \le 540\text{--}600\text{ mm}
+  \end{equation}
+  
+  \item \textbf{Vertical Workspace Envelope:} Standard architectural furnishings exhibit strictly standardized working heights:
+  \begin{itemize}
+    \item \emph{Floor Level ($z = 0\text{ mm}$):} Fallen objects, shoes, floor tidy-up.
+    \item \emph{Dining Tables and Desks ($z = 720\text{--}750\text{ mm}$):} Standard meal surfaces and workstations.
+    \item \emph{Kitchen Counters and Workbenches ($z = 850\text{--}900\text{ mm}$):} Food preparation, appliance manipulation.
+    \item \emph{Intermediate and High Shelves ($z = 1000\text{--}1350\text{ mm}$):} Cupboards, pantry shelves, wall cabinets.
+  \end{itemize}
+  By establishing the shoulder yoke at an ergonomic height of $\approx 950\text{ mm}$ on a rigid structural mast, the dual 6-DoF manipulators cover a continuous vertical manipulation reach band from $500\text{ mm}$ to $1350\text{ mm}$. This directly spans dining tables ($750\text{ mm}$), kitchen counters ($900\text{ mm}$), and eye-level shelves purely through joint articulation, avoiding the parasitic dead weight, mechanical binding risk, and cost of an active prismatic mast in the baseline build (while supporting an optional modular telescopic column for extended floor-to-ceiling reach).
+  
+  \item \textbf{Continuous Payload Demands:} Everyday domestic and laboratory objects (beverage mugs, full 1.5-liter water bottles, books, canned goods, medical supply kits) weigh between $0.2\text{ kg}$ and $2.0\text{ kg}$. To maintain a safety margin of $1.5\times$ during dynamic accelerations ($a_{\text{EE}} \approx 1.5\text{ m/s}^2$), each manipulator must provide a continuous payload rating:
+  \begin{equation}
+  m_{\text{payload}} \ge 2.0\text{ kg} \quad (\text{nominal target: } 3.0\text{ kg per arm})
+  \end{equation}
+\end{itemize}
+
+\subsection{Morphological Benchmarking of Contemporary Mobile Manipulators}
+To contextualize the mechatronic design within state-of-the-art robotics engineering, Table~\ref{tab:robot_comparison} details a rigorous comparative analysis across five prominent mobile manipulation platforms: PAL Robotics TIAGo Pro~\cite{tiagopro}, Pollen Robotics Reachy~2~\cite{reachy2}, Stanford/AgileX Mobile ALOHA~\cite{mobilealoha}, Menlo Research Asimov~1~\cite{asimov1}, and Hello Robot Stretch~3~\cite{stretch}.
+
+\begin{table}[htbp]
+\centering\scriptsize
+\caption{Comprehensive morphological and mechatronic benchmarking of leading mobile manipulation systems.}
+\label{tab:robot_comparison}
+\begin{tabularx}{\textwidth}{@{}lYYYYYY@{}}
+\toprule
+\textbf{Specification Parameter} & \textbf{PAL Robotics TIAGo Pro}~\cite{tiagopro} & \textbf{Pollen Robotics Reachy 2}~\cite{reachy2} & \textbf{Mobile ALOHA (AgileX)}~\cite{mobilealoha} & \textbf{Menlo Research Asimov 1}~\cite{asimov1} & \textbf{Hello Robot Stretch 3}~\cite{stretch} & \textbf{Proposed Platform} \\
+\midrule
+\textbf{Morphology Category} & Modular Semi-Humanoid (Wheeled AMR) & An\-thro\-po\-mor\-phic Upper Body (Wheeled opt.) & Bimanual Mobile Manipulator & Bipedal Humanoid (Upper Body relevant) & Minimalist Prismatic Mobile Manipulator & Modular General-Purpose Semi-Humanoid \\
+\addlinespace[0.2em]
+\textbf{Total Actuated DoF} & 23 DoF (Base: 2-3, Torso: 1, Arms: $2 \times 7$, Head: 2, Grip: 2) & 21--23 DoF (Arms: $2 \times 7$, Grip: 2, Head: 3, Antennas: 2) & 16 DoF (Base: 2, Arms: $2 \times 6$, Grippers: 2) & 25 DoF (Legs: $2 \times 6$, Waist: 1, Arms: $2 \times 5$, Head: 2) & 5 DoF (Base: 2, Mast Lift: 1, Arm Telescoping: 1, Grip: 1) & 18 DoF (Base: 2, Arms: $2 \times 6$, Grip: 2, Head: 2) \\
+\addlinespace[0.2em]
+\textbf{Continuous Arm Payload} & 3.0~kg per arm (excluding gripper) & 3.0~kg per arm & 0.75~kg (ViperX) to 1.5~kg (PiPER) & $\sim 1.5$~kg per arm & 1.5~kg (at full horizontal extension) & 2.0--3.0~kg per arm \\
+\addlinespace[0.2em]
+\textbf{Manipulator Reach} & Vertical: 920--960~mm; Horiz. span: 2360~mm & Full arm span $\sim 1400$~mm & Vertical: 650--2000~mm; Horiz: 1000~mm & Arm reach $\sim 600$~mm; waist yaw rotation & Vertical: 1100~mm; Horiz. stroke: 520~mm & Vertical: 500--1350~mm; Horiz. reach: 625~mm \\
+\addlinespace[0.2em]
+\textbf{Torso / Lift Stroke} & Active telescopic column: 350~mm stroke & Fixed an\-thro\-po\-mor\-phic chest & Fixed extrusion frame; static height & Fixed torso frame with 1-DoF waist yaw & Vertical carriage on fixed mast ($1100\text{ mm}$) & Fixed structural mast (optional column: 300~mm) \\
+\addlinespace[0.2em]
+\textbf{Base Drive Kinematics} & Differential ($\varnothing 540\text{ mm}$) or Mecanum ($710 \times 490\text{ mm}$) & Om\-ni\-di\-rec\-tion\-al wheeled base (optional) & Differential drive (AgileX Tracer AGV) & Bipedal dynamic walking legs (6-DoF/leg) & Differential drive (dual central wheels + castors) & Differential drive (2 active wheels + 2 casters) \\
+\addlinespace[0.2em]
+\textbf{Max Base Velocity} & 1.0~m/s & 0.8--1.0~m/s & 1.5--2.0~m/s & 0.8--1.2~m/s (walking) & 0.6~m/s & 0.8--1.0~m/s \\
+\addlinespace[0.2em]
+\textbf{Total System Mass} & 60--72~kg (diff), 95~kg (omni) & $\sim 35\text{--}40\text{ kg}$ (upper body + base) & $\sim 75\text{ kg}$ (with battery bank \& arms) & 35~kg & 24.5~kg & $\sim 45\text{--}50\text{ kg}$ (statically balanced) \\
+\addlinespace[0.2em]
+\textbf{Actuator Technology} & Series Elastic Actuators (SEAs) + torque sensors & Custom Orbita 2D/3D spherical modules & Off-the-shelf industrial servos (Dynamixel) & BLDC motors + low-ratio planetary (QDD) & Stepper motors + belt drives + compliance springs & Tiered Hybrid: QDD (proximal) + Bus Servos (distal) \\
+\addlinespace[0.2em]
+\textbf{Internal Fieldbus} & Real-time EtherCAT (1~kHz closed loop) & CAN bus + USB 3.0 / Serial & CAN bus (arms \& base) & 5$\times$ CAN @ 1~Mbps + 1$\times$ CAN @ 500~kbps & USB over internal serial UART & 1~Mbps CAN 2.0B / TWAI + 1~Mbps Half-Duplex TTL \\
+\addlinespace[0.2em]
+\textbf{Battery Chemistry \& Life} & 36V 20Ah Li-ion (8--10~h runtime) & 24V--48V Li-ion (4--6~h runtime) & 24V 30Ah LFP base + 1024Wh pack (12~h) & 48V Li-ion pack ($\sim 1\text{--}2\text{ h}$ walking) & 12V 20Ah LiFePO4 ($\sim 4\text{ h}$) & 24V 20Ah LiFePO4 ($\sim 480\text{ Wh}$, $\sim 3.5\text{ h}$) \\
+\addlinespace[0.2em]
+\textbf{Compute Architecture} & Intel Core i7 + NVIDIA Jetson GPU & Industrial x86 SBC + NVIDIA Jetson Orin & Onboard laptop (Intel i7 + RTX GPU) & Radxa CM5 (motion) + Raspberry Pi 5 & Intel Core i5 embedded computer & Jetson Orin NX 16GB + 5$\times$ ESP32 MCUs \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsubsection{Mechatronic Design Trade-Off Analysis}
+Evaluating the comparative architectural implementations in Table~\ref{tab:robot_comparison} highlights three decisive mechatronic trade-offs that govern our design synthesis:
+
+\begin{enumerate}[leftmargin=1.5em]
+  \item \textbf{Torso Architecture: Fixed Structural Mast versus Prismatic Lift Column:}
+  While active prismatic lift columns (e.g., TIAGo Pro) extend vertical stroke down to floor level, they introduce severe structural liabilities. When dual arms carrying payloads extend forward, the resulting cantilever moment ($M_{\text{cant}} = \sum m_i g L_i$) induces extreme normal reaction forces across linear bearing carriages, causing mechanical binding, stick-slip wear, and motor current surges. Furthermore, a motorized prismatic stage adds $10\text{--}15\text{ kg}$ of parasitic dead mass that elevates the center of mass ($z_{\text{CoM}}$) and increases tipping risk.
+  
+  Our design implements a rigid 6061-T6 aluminum extrusion mast with shoulder height at $\approx 950\text{ mm}$. The dual 6-DoF manipulators cover a continuous vertical manipulation envelope from $500\text{ mm}$ to $1350\text{ mm}$ purely through joint kinematics, directly covering standard dining tables ($750\text{ mm}$), countertops ($900\text{ mm}$), and eye-level shelves without moving torso pinch hazards, while lowering $z_{\text{CoM}} \le 350\text{ mm}$. The telescopic column is maintained as a modular, bolt-on upgrade (+EGP 32,920) rather than a baseline requirement.
+
+  \item \textbf{Base Drivetrain: High-Traction Differential Drive versus Omnidirectional Mecanum Drive:}
+  While omnidirectional Mecanum wheel drives provide instantaneous 3-DoF planar velocity control ($\dot{x}, \dot{y}, \dot{\theta}$), their angled peripheral rollers suffer from $15\text{--}20\%$ non-linear wheel slip on domestic floors, leading to rapid dead-reckoning drift in wheel odometry. Furthermore, Mecanum rollers generate severe high-frequency chassis vibrations on hard floors, struggle with carpet pile friction, and are prone to jamming from domestic debris (hairs, fibers).
+  
+  In contrast, a differential drive topology with two large $\varnothing 200\text{ mm}$ vulcanized rubber wheels and two passive $100\text{ mm}$ swivel casters provides superior traction ($\mu_s \ge 0.85$), smooth and quiet rolling, flawless threshold traversal ($15\text{--}20\text{ mm}$ height), zero-radius turning on the spot ($R_{\text{turn}} = 0$), and highly deterministic odometric tracking.
+
+  \item \textbf{Actuator Paradigm: Tiered Hybrid QDD and Bus Servos versus All-Harmonic Arms:}
+  Conventional collaborative arms utilizing all-harmonic drivetrains (e.g., Franka Panda, UR3) achieve high static precision but suffer from high gear ratios ($N > 100:1$), enormous reflected inertia ($I_{\text{ref}} = N^2 I_{\text{rotor}} > 10{,}000 I_{\text{rotor}}$), non-backdrivability, and prohibitive cost ($>\$25{,}000$). Conversely, hobby-grade multi-servo arms fail under continuous payload holding torques.
+  
+  Our design introduces a tiered hybrid actuation architecture: high-torque CubeMars AK70-10 QDD modules ($24.8\text{ N}\cdot\text{m}$, $10:1$ planetary ratio) power high-load proximal joints (shoulder pitch/roll/yaw, elbow pitch), providing transparent backdrivability, impact tolerance, and direct phase-current torque estimation. Distal wrist joints (pitch, roll) and parallel-jaw grippers deploy lightweight Feetech STS3215/STS3032 serial bus servos, cutting distal mass by nearly $90\%$, lowering reflected inertia quadratically, and drastically reducing arm cost to EGP~190,550 for both arms.
+\end{enumerate}
+
+\subsection{Definition of Concrete Platform Validation Benchmarks}
+To empirically validate the core design philosophy---specifically proving that the mechatronic platform exposes a complete, robust set of operational capabilities that can be commanded exclusively through the standardized Task Port without modifying underlying control loops---this project defines two concrete validation benchmarks.
+
+\subsubsection{Benchmark 1: Primary Proof-of-Concept Task --- Autonomous Voice-Commanded Pick-and-Place}
+The primary benchmark represents an end-to-end autonomous mobile manipulation workflow commanded entirely via unconstrained spoken natural language. This benchmark validates the multi-layer integration of acoustic perception, cognitive task planning, Task Port API decoupling, autonomous navigation, and compliant grasping.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[scale=0.88, every node/.style={transform shape}]
+  % Pipeline nodes
+  \node[block, fill=orange!15, draw=orange, text width=3.8cm] (voice) at (0, 3.0) {
+    \textbf{1. Acoustic Capture \& STT}\\\footnotesize
+    Head microphone array audio\\
+    OpenAI Whisper~\cite{whisper} transcription\\
+    \emph{``Bring me the mug from table''}
+  };
+
+  \node[block, fill=orange!15, draw=orange, text width=3.8cm] (planner) at (4.8, 3.0) {
+    \textbf{2. Cognitive Planning}\\\footnotesize
+    LLM / VLA model~\cite{openvla,rtx}\\
+    Semantic entity extraction\\
+    Structured JSON action plan
+  };
+
+  \node[block, fill=teal!20, draw=teal, very thick, text width=3.8cm] (taskport_node) at (9.6, 3.0) {
+    \textbf{3. Task Port Action Invocation}\\\footnotesize
+    Standardized ROS 2 Actions:\\
+    \texttt{NavigateToPose}\\
+    \texttt{SegmentTableware}\\
+    \texttt{PickObject / PlaceObject}
+  };
+
+  \node[device, text width=3.8cm] (nav) at (2.4, 0.0) {
+    \textbf{4. Mobile Navigation}\\\footnotesize
+    Nav2 SLAM costmap\\
+    Differential drive transit\\
+    Table approach \& docking
+  };
+
+  \node[device, text width=3.8cm] (perc) at (7.2, 0.0) {
+    \textbf{5. Vision \& Reaching}\\\footnotesize
+    RGB-D 3D point cloud\\
+    Fixed mast reach ($500\text{--}1350\text{ mm}$)\\
+    MoveIt 2 collision-free IK
+  };
+
+  \node[device, text width=3.8cm] (manip) at (12.0, 0.0) {
+    \textbf{6. Compliant Grasp \& Transport}\\\footnotesize
+    QDD torque-regulated grasp\\
+    Stable lift \& base retreat\\
+    Delivery \& controlled release
+  };
+
+  % Connecting arrows
+  \draw[arrow, orange] (voice) -- (planner);
+  \draw[arrow, orange] (planner) -- (taskport_node);
+  \draw[arrow, teal] (taskport_node) |- (nav);
+  \draw[arrow, teal] (nav) -- (perc);
+  \draw[arrow, teal] (perc) -- (manip);
+
+  % Feedback
+  \draw[bus, navy, dashed] (manip.north) to[bend right=25] node[above, font=\scriptsize] {Telemetry / Task Complete Feedback} (taskport_node.east);
+\end{tikzpicture}
+\caption{End-to-end execution pipeline for Validation Benchmark 1: Autonomous voice-commanded pick-and-place mediated strictly across the Task Port interface.}
+\label{fig:benchmark1_pipeline}
+\end{figure}
+
+As diagrammed in Figure~\ref{fig:benchmark1_pipeline}, the execution pipeline progresses as follows:
+\begin{enumerate}[leftmargin=1.5em]
+  \item \textbf{Acoustic Capture and Speech Recognition:} Ambient audio is captured via the head-mounted directional microphone array and processed locally or edge-hosted by OpenAI Whisper~\cite{whisper}. Whisper translates the acoustic waveform into a normalized text transcript:
+  \begin{equation}
+  \mathbf{w}_{\text{audio}} \xrightarrow{\text{Whisper STT}} \mathbf{s}_{\text{text}} = \text{``Fetch the green mug and place it on the table.''}
+  \end{equation}
+  
+  \item \textbf{Cognitive Intent Parsing and Plan Decomposition:} A cognitive Large Language Model (LLM) or Vision-Language-Action (VLA) foundation planner (e.g., OpenVLA~\cite{openvla}, RT-X~\cite{rtx}) interprets the transcript, resolves semantic spatial references against a topological semantic map of the arena, and decomposes the high-level intent into a structured sequence of discrete Task Port action goals:
+  \begin{equation}
+  \Pi = \left\{ \text{Nav}(\text{counter}), \text{Perceive}(\text{``green mug''}), \text{Grasp}(\mathbf{T}_{\text{grasp}}), \text{Nav}(\text{table}), \text{Place}(\mathbf{T}_{\text{place}}) \right\}
+  \end{equation}
+
+  \item \textbf{Task Port Invocation and Autonomous Execution:} The task client script interacts \emph{exclusively} through the Task Port API:
+  \begin{itemize}
+    \item Invoking \texttt{NavigateToPose}$(x, y, \theta)$ triggers Nav2, driving the differential chassis to the target pose while avoiding obstacles.
+    \item \emph{Workspace Matching:} The fixed structural mast positions the shoulder yoke at $\approx 950\text{ mm}$, placing the countertop natively within the $500\text{--}1350\text{ mm}$ arm reaching envelope without requiring auxiliary prismatic lift motion.
+    \item Invoking \texttt{PerceiveTarget}(``green mug'') commands the pan-tilt head camera to localize the target, returning an estimated $SE(3)$ grasp pose $\mathbf{T}_{\text{grasp}}$ and surface normal vector $\mathbf{n}$.
+    \item Invoking \texttt{ExecuteBimanualPick}($\mathbf{T}_{\text{grasp}}$) triggers MoveIt~2 collision-free trajectory planning and QDD current-regulated grasp closure ($F_{\text{normal}} \approx 15\text{ N}$).
+    \item The platform navigates to the destination surface, confirms clearance via depth sensing, and gently places the payload under controlled deceleration.
+  \end{itemize}
+  
+  \item \textbf{Validation Metric:} Successful autonomous task completion across 10 consecutive trials without manual operator intervention, maintaining positional repeatability $\le \pm 2.0\text{ mm}$, zero collision events, and execution latency under $120\text{ seconds}$.
+\end{enumerate}
+
+\subsubsection{Benchmark 2: Secondary Task --- Interactive Web Dashboard Teleoperation, Alarm Monitoring, and Task Programming}
+The secondary benchmark validates the platform's Human-Machine Interface (HMI), real-time operational observability, diagnostic safety mechanisms, and no-code task programming capability:
+
+\begin{enumerate}[leftmargin=1.5em]
+  \item \textbf{Low-Latency Interactive Teleoperation:} Validation of supervisory manual control through a browser-based WebRTC/WebSocket dashboard. The operator exercises decoupled velocity jogging of the differential base ($v_x, \omega_z$ via virtual joystick) and Cartesian 6-DoF end-effector jogging of dual arms. Video feeds from the stereo perception head and wrist cameras stream at $1080\text{p} @ 30\text{ fps}$ with end-to-end network latency $t_{\text{latency}} \le 80\text{ ms}$ over local Wi-Fi~6.
+  
+  \item \textbf{Real-Time Telemetry and Multi-Level Alarm Monitoring:} Continuous telemetry aggregation streaming from embedded controllers to the HMI:
+  \begin{itemize}
+    \item Battery Management System (BMS) health: cell voltage balance, State of Charge (SoC), pack temperature, and discharge current.
+    \item Actuator drive diagnostics: motor winding temperatures, FOC inverter phase currents, bus voltage sag, and fieldbus cyclic jitter ($<50\text{ }\mu\text{s}$).
+    \item Live safety interlock supervision: monitoring safety LiDAR zone infringements, physical E-stop contactor status, and torque-limit exceedance alarms.
+  \end{itemize}
+  
+  \item \textbf{Interactive Waypoint-Based Task Programming (Record-and-Replay):} To empower non-expert operators to program tasks without writing code, the dashboard provides a graphical record-and-replay interface:
+  \begin{itemize}
+    \item The operator backdrives the compliant QDD arms manually (kinesthetic teaching) or jogs the robot to key spatial waypoints.
+    \item Waypoints are logged as timestamped $SE(3)$ end-effector poses and base coordinates:
+    \begin{equation}
+    \mathcal{W}_k = \left\{ \mathbf{T}_{\text{base}, k}, \mathbf{T}_{\text{left}, k}, \mathbf{T}_{\text{right}, k}, g_{\text{left}, k}, g_{\text{right}, k} \right\}
+    \end{equation}
+    \item The interface constructs a graphical Behavior Tree or linear motion script, parameterizing velocities, blend radii, and grasp thresholds.
+    \item The generated task is flashed directly through the Task Port API, where the platform autonomously synthesizes smooth quintic polynomial trajectories between waypoints and executes the sequence repeatably.
+  \end{itemize}
+
+  \item \textbf{Validation Metric:} Rapid programming ($<10\text{ minutes}$) and verified autonomous replay of a multi-waypoint tray-clearing routine, with live diagnostic alarms correctly flagging simulated fault conditions (e.g., motor thermal warning at $75^\circ\text{C}$ or artificial path obstruction) and bringing the platform to a controlled stop.
+\end{enumerate}

@@ -1,0 +1,204 @@
+\section{Cross-Domain Engineering Allocation}
+\label{sec:domain_allocation}
+
+\subsection{Multidisciplinary Allocation Framework (VDI 2206)}
+The realization of an autonomous mobile manipulator demands a rigorous departure from fragmented, discipline-isolated development methodologies. In conventional engineering workflows, the mechanical skeleton, electrical power grid, motor actuation, and software intelligence are frequently addressed in consecutive isolation. For high-degree-of-freedom cyber-physical systems (CPS), this serialized paradigm routinely induces structural inefficiencies, thermal runaway at motor joints, communication bus saturation, and costly redesign iterations. 
+
+To systematically overcome these failure modes, the system-level conceptual requirements ($R_1$--$R_{24}$) and tripartite flow structures ($\mathbf{M}$, $\mathbf{E}$, $\mathbf{I}$) formulated in Section~\ref{sec:functional_structure} are translated into domain-specific engineering work packages in strict accordance with the VDI~2206 design methodology~\cite{vdi2206}. Operating across the descending and ascending branches of the VDI~2206 V-model, the platform architecture establishes a synchronized triad across three primary engineering domains:
+\begin{enumerate}[leftmargin=1.5em]
+  \item \textbf{Mechanical Engineering:} Structural chassis, kinematics linkages, mass/inertia distribution, thermal heat sinking, and environmental ingress protection.
+  \item \textbf{Electrical \& Embedded Engineering:} High-current power distribution, Li-ion battery management, safety interlocks, custom PCB design, and hard real-time motor commutation firmware.
+  \item \textbf{Computer Science and Software Engineering:} Real-time middleware orchestration, SLAM and navigation, collision-free manipulation planning, Vision-Language-Action (VLA) foundation models, and human-machine teleoperation interfaces.
+\end{enumerate}
+
+Table~\ref{tab:domain_allocation_matrix} formalizes the domain allocation matrix, detailing the division of responsibilities, primary work packages, concrete deliverables, and quantifiable verification metrics across the platform lifecycle.
+
+\begin{small}
+\begin{longtable}{@{}p{0.13\textwidth} p{0.22\textwidth} p{0.23\textwidth} p{0.18\textwidth} p{0.13\textwidth}@{}}
+\caption{Formal VDI 2206 cross-domain engineering allocation matrix for the semi-humanoid platform.}
+\label{tab:domain_allocation_matrix}\\
+\toprule
+\textbf{Domain} & \textbf{Work Package (WP)} & \textbf{Scope \& Key Responsibilities} & \textbf{Primary Deliverables} & \textbf{Verification Metric} \\
+\midrule
+\endfirsthead
+\multicolumn{5}{c}{{\bfseries Table \thetable\ continued from previous page}} \\
+\toprule
+\textbf{Domain} & \textbf{Work Package (WP)} & \textbf{Scope \& Key Responsibilities} & \textbf{Primary Deliverables} & \textbf{Verification Metric} \\
+\midrule
+\endhead
+\midrule
+\multicolumn{5}{r}{{Continued on next page\dots}} \\
+\bottomrule
+\endfoot
+\bottomrule
+\endlastfoot
+
+\textbf{Mechanical} & 
+WP-ME1: Base Drivetrain \& Structural Chassis & 
+Differential chassis frame, motor mounts, wheel hubs, ground clearance ($>30\text{ mm}$), and caster suspension. & 
+3D CAD assembly, structural FEA stress reports, CNC fabrication drawings. & 
+Factor of safety $S_f \ge 2.2$; payload $\ge 80\text{ kg}$; chassis deflection $<0.5\text{ mm}$. \\
+\addlinespace[3pt]
+& 
+WP-ME2: Fixed Mast Torso \& Modular Waist Axis & 
+Structural fixed mast frame, CubeMars AK70-10 modular mounting, bearing load isolation, and CoM balance. & 
+Torso weldment/bracket CAD, bearing load calculation sheets, physical frame. & 
+Structural deflection $<0.5\text{ mm}$; modular waist moment load $\ge 45\text{ N}\cdot\text{m}$. \\
+\addlinespace[3pt]
+& 
+WP-ME3: Dual 6-DoF Manipulator Kinematic Chain & 
+Shoulder, elbow, and wrist linkages, link inertia reduction, carbon-fiber / aluminum structural tubes, cable passages. & 
+Parametric arm CAD, mass/inertia matrices ($I_{xx}, I_{yy}, I_{zz}$), 3D printed / machined links. & 
+Natural frequency $\omega_n \ge 18\text{ Hz}$; settling time $t_s \le 0.4\text{ s}$; arm payload $\ge 2.0\text{ kg}$. \\
+\addlinespace[3pt]
+& 
+WP-ME4: Modular End-Effectors \& 2-DoF Neck & 
+Parallel-jaw grippers with silicone contact pads, 2-DoF pan-tilt sensor head housing RGB-D camera and microphones. & 
+Gripper CAD with ISO~9409-1 flange, pan-tilt head gimbal assembly, 3D MJF PA12 parts. & 
+Clamping force $15\text{--}35\text{ N}$; grasp span $0\text{--}85\text{ mm}$; head pan $\pm 90^\circ$, tilt $+45^\circ/-30^\circ$. \\
+\midrule
+
+\textbf{Electrical \&} & 
+WP-EE1: Power Subsystem \& Safety Interlocks & 
+$24\text{V}$, $20\text{Ah}$ $\text{LiFePO}_4$ battery integration, BMS, main 40~A contactor, E-Stop disconnect loop, and multi-rail DC-DC. & 
+Power schematic, wiring harness pinout diagrams, battery enclosure, safety contactor board. & 
+E-Stop disconnect latency $\le 10\text{ ms}$; voltage ripple $<1.5\%$; battery run-time $\ge 4.0\text{ h}$. \\
+\addlinespace[3pt]
+\textbf{Embedded} & 
+WP-EE2: Custom Subsystem PCB Design & 
+Design and population of 4 custom boards: Base Controller, Power/Waist, Head Interface, and Dual Arm Joint Interface. & 
+KiCad schematics, multi-layer Gerber files, assembled and bench-tested PCBs. & 
+$100\%$ net continuity; CAN bus termination $120\,\Omega \pm 1\%$; 40~A trace thermal rise $<25^\circ\text{C}$. \\
+\addlinespace[3pt]
+& 
+WP-EE3: Real-Time Embedded Firmware & 
+Firmware for 5x ESP32-WROOM-32 MCUs, TWAI CAN drivers, CiA~402 drive state machines, half-duplex TTL servo chains. & 
+C/C++ FreeRTOS firmware repositories, micro-ROS client nodes, flash automation scripts. & 
+Deterministic loop rate $1\text{ kHz}$; CAN packet transmission jitter $<150\,\mu\text{s}$; zero watchdog timeouts. \\
+\addlinespace[3pt]
+& 
+WP-EE4: Signal Conditioning \& Harnessing & 
+Quadrature encoder decoding, 9-DoF IMU SPI acquisition, ultrasonic ranging, continuous-rotation wire shielding. & 
+Finished wiring harnesses with strain relief, ferrite choke clamp documentation. & 
+EMI noise margin $>20\text{ dB}$; zero dropped encoder pulses up to $3000\text{ RPM}$; IMU rate $\ge 200\text{ Hz}$. \\
+\midrule
+
+\textbf{Software \&} & 
+WP-CS1: Compute Infrastructure \& RTOS Middleware & 
+NVIDIA Jetson Orin NX OS setup, PREEMPT\_RT real-time Linux kernel, ROS~2 Jazzy infrastructure, micro-ROS agent. & 
+Custom Linux rootfs image, Docker deployment containers, ros2\_control hardware interfaces. & 
+Kernel interrupt latency $\le 50\,\mu\text{s}$; inter-process zero-copy transport latency $<100\,\mu\text{s}$. \\
+\addlinespace[3pt]
+\textbf{Computer} & 
+WP-CS2: Autonomous Base Navigation \& SLAM & 
+2D LiDAR SLAM, costmap generation, dynamic obstacle avoidance, and Nav2 path tracking controllers. & 
+Nav2 configuration packages, customized costmap plugins, AMCL tuning parameters. & 
+Global localization error $\le 30\text{ mm}$, heading error $\le 2.0^\circ$; transit speed $0.8\text{--}1.0\text{ m/s}$. \\
+\addlinespace[3pt]
+\textbf{Science} & 
+WP-CS3: Manipulation Kinematics \& Dual-Arm Planning & 
+MoveIt~2 integration, bio-IK / TRAC-IK inverse kinematics solvers, collision-free Cartesian trajectory generation. & 
+MoveIt~2 configuration packages, dual-arm collision models, self-collision avoidance matrices. & 
+IK solve time $\le 5\text{ ms}$; Cartesian trajectory execution repeatability $\le \pm 2.0\text{ mm}$. \\
+\addlinespace[3pt]
+& 
+WP-CS4: Standardized Task Port \& Safety Supervisor & 
+Action servers exposing decoupled task primitives (/navigate\_to\_pose, /pick\_object), runtime safety state observer. & 
+ROS~2 Action Server packages, ISO~13482 safety monitoring node, Python client verification scripts. & 
+Task dispatch latency $\le 25\text{ ms}$; safety override reaction time $\le 20\text{ ms}$; 100\% command isolation. \\
+\addlinespace[3pt]
+& 
+WP-CS5: Multimodal Perception \& VLA Integration & 
+RealSense RGB-D point cloud segmentation, Whisper speech recognition, OpenVLA foundation policy trajectory streaming. & 
+Perception ROS~2 nodes, Whisper STT inference pipeline, OpenVLA action chunking adapter. & 
+Object pose estimation rate $\ge 15\text{ Hz}$; VLA action inference rate $\ge 10\text{ Hz}$; speech response $<1.2\text{ s}$. \\
+\addlinespace[3pt]
+& 
+WP-CS6: Web Teleoperation \& Fleet Telemetry & 
+Browser-based dashboard providing real-time video streaming, 3D LiDAR point cloud display, and joint teleoperation. & 
+Full-stack web application (React, WebRTC, rosbridge\_suite WebSocket server). & 
+Glass-to-glass video streaming latency $\le 120\text{ ms}$; telemetry update rate $\ge 20\text{ Hz}$. \\
+\end{longtable}
+\end{small}
+
+\subsection{Domain Work Packages, Primary Deliverables, and Verification Metrics}
+
+\subsubsection{Mechanical Engineering Domain}
+The mechanical engineering team holds primary ownership over the structural integrity, kinematics geometry, payload capacity, and mass properties of the robotic system:
+\begin{itemize}[leftmargin=1.5em]
+  \item \textbf{Chassis and Drivetrain (WP-ME1):} Responsible for the structural baseplate machined from $6\text{ mm}$ 6061-T6 aluminum alloy. The chassis houses two 100~W brushed DC gearmotors driving $\varnothing 200\text{ mm}$ high-traction rubber wheels, paired with dual $100\text{ mm}$ heavy-duty polyurethane swivel casters. Finite element analysis (FEA) validates that under a combined static and dynamic payload of $85\text{ kg}$, von Mises stresses remain well below the yield strength ($\sigma_{\text{yield}} = 276\text{ MPa}$), yielding a safety factor $S_f \ge 2.2$.
+  \item \textbf{Fixed Mast Torso Structure and Waist Axis (WP-ME2):} The baseline torso adopts a rigid structural fixed mast constructed from modular $30 \times 30\text{ mm}$ aluminum extrusions, delivering the invariant 18-DoF baseline. To support the modular torso articulation path budgeted in the BOM, it incorporates precision mounting provisions and dual angular contact ball bearings for a CubeMars AK70-10 QDD waist tilt actuator, isolating the gearbox from parasitic radial and axial moment loads during forward reaches.
+  \item \textbf{Dual 6-DoF Manipulators (WP-ME3):} Each 6-DoF arm is configured with four proximal CubeMars AK70-10 QDD actuators (shoulder pitch, shoulder roll, shoulder yaw, elbow pitch) and two distal Feetech STS3215 serial bus servos (wrist pitch, wrist roll). Structural links are engineered using thin-walled aluminum tubing and hollow carbon-fiber composite sections, minimizing link mass while shifting structural resonance frequencies above $18\text{ Hz}$ to avoid control-loop excitation.
+  \item \textbf{Modular End-Effector and Head Assembly (WP-ME4):} The parallel-jaw gripper uses a compact Feetech STS3032 bus servo driving a dual-rack-and-pinion transmission. Gripper jaws feature exchangeable shore-A 60 silicone pads optimized for domestic tableware grasping ($0\text{--}85\text{ mm}$ opening span). The perception head provides 2-DoF pan/tilt articulation driven by dual Feetech STS3215 servos, carrying the Intel RealSense depth camera and microphone array.
+  \item \textbf{Optional Prismatic Column (WP-ME5):} When installed as a modular add-on, the telescopic column utilizes a 24~V electric linear actuator ($300\text{ mm}$ stroke, $1500\text{ N}$ static thrust) guided by dual precision recirculating ball linear guide rails (MGN15 series), completely decoupling moment loads from the actuator lead screw.
+\end{itemize}
+
+\subsubsection{Electrical and Embedded Engineering Domain}
+The electrical engineering team manages the complete energy transformation pipeline, power conditioning, circuit design, and distributed real-time microcontroller network:
+\begin{itemize}[leftmargin=1.5em]
+  \item \textbf{Power Architecture and Energy Storage (WP-EE1):} The primary energy source is an $8\text{S}$, $24\text{V}$, $20\text{Ah}$ $\text{LiFePO}_4$ battery pack ($\sim 480\text{ Wh}$) with an internal Battery Management System (BMS) supporting continuous $40\text{A}$ discharge and $100\text{A}$ transient pulse capability. A 40~A continuous-duty safety contactor provides galvanically isolated hardware power cutoff.
+  \item \textbf{Custom PCB Hardware Development (WP-EE2):} To eliminate cabling rats-nests and mitigate ground loops, four custom populated PCBs are developed:
+  \begin{enumerate}[leftmargin=1.2em]
+    \item \emph{Custom Base Controller PCB:} Combines an ESP32 carrier, dual-channel H-bridge motor driver (40~V / 15~A per channel), optical encoder quadrature counters, and ultrasonic sensor headers.
+    \item \emph{Custom Power Distribution \& Waist PCB:} Houses high-current fused battery busbars, three high-efficiency synchronous buck converters ($24\text{V} \rightarrow 19\text{V } 4\text{A}$, $24\text{V} \rightarrow 12\text{V } 6\text{A}$, and $24\text{V} \rightarrow 5\text{V } 5\text{A}$), a 3.3~V CAN transceiver (SN65HVD230) interfaced to the ESP32 Two-Wire Automotive Interface (TWAI), and safety relay coil drivers.
+    \item \emph{Custom Head Interface PCB:} Integrates half-duplex TTL bus servo level shifters, an I2S stereo class-D audio power amplifier ($2 \times 3\text{ W}$), microphone breakout headers, and an ESP32 carrier.
+    \item \emph{Custom Arm Joint Interface PCBs (x2):} Mounted at each shoulder base, each board integrates a 3.3~V CAN transceiver on the ESP32 TWAI bus (interfacing the 4x AK70-10 QDD chain) and a 74HC126-based half-duplex TTL buffer circuit (interfacing the 2x wrist servos and 1x gripper servo).
+  \end{enumerate}
+  \item \textbf{Distributed Real-Time Firmware (WP-EE3):} Five ESP32-WROOM-32 microcontrollers execute FreeRTOS firmware. Low-level control tasks operate deterministically:
+  \begin{itemize}
+    \item Base MCU: Executes closed-loop PID velocity tracking ($100\text{ Hz}$) using quadrature encoder feedback.
+    \item Torso MCU: Reads 9-DoF IMU data via SPI ($200\text{ Hz}$), executes waist angle trajectory interpolation, and monitors battery bus voltages.
+    \item Arm MCUs (x2): Translates high-level joint trajectory setpoints into 1~kHz CAN command frames dispatched to the CubeMars AK70-10 FOC inverters and 50~Hz serial packets dispatched to the Feetech bus servos.
+    \item Head MCU: Regulates pan/tilt tracking angles and manages audio input/output buffers.
+  \end{itemize}
+  \item \textbf{Signal Integrity and Harnessing (WP-EE4):} Critical communication lines (CAN, UART, I2S) are routed through twisted shielded pairs with common-mode choke filtering to maintain robust signal margins in the vicinity of pulse-width modulated (PWM) motor power lines.
+\end{itemize}
+
+\subsubsection{Computer Science and Software Engineering Domain}
+The software engineering team owns the high-level computational pipelines, real-time operating system middleware, spatial navigation, manipulation planning, and physical AI execution:
+\begin{itemize}[leftmargin=1.5em]
+  \item \textbf{Operating System and Middleware Core (WP-CS1):} The NVIDIA Jetson Orin NX (16~GB) executes Ubuntu 24.04 LTS patched with the PREEMPT\_RT real-time kernel. The core communication layer runs ROS~2 Jazzy Jalisco. Fast DDS serves as the default middleware implementation, configured with shared-memory (SHM) intra-host transport to achieve sub-$100\,\mu\text{s}$ message transfer latencies for high-bandwidth RGB-D point clouds.
+  \item \textbf{Autonomous Navigation Stack (WP-CS2):} Implements the Nav2 framework~\cite{nav2}. Planar range data from the Slamtec RPLiDAR A1M8 ($360^\circ$ FoV, 12~m range) is fused with wheel odometry and torso IMU data using an Extended Kalman Filter (EKF) via the \texttt{robot\_localization} node. Nav2 manages layered 2D costmaps, obstacle inflation, and dynamic obstacle avoidance using the Regulated Pure Pursuit (RPP) controller.
+  \item \textbf{Dual-Arm Manipulation Planning (WP-CS3):} The MoveIt~2 framework~\cite{moveit2} manages kinematic planning for the dual 6-DoF arms and waist axis. The kinematic models enforce joint limits, velocity bounds, and dynamic obstacle clearance. Self-collision avoidance matrices are precomputed across the robot URDF model to guarantee that arm-to-arm and arm-to-torso collision-free paths are generated within $\le 5\text{ ms}$.
+  \item \textbf{Standardized Task Port Layer (WP-CS4):} Encapsulates all robotic capabilities into standardized ROS~2 Action Servers. The application layer commands actions via high-level goal definitions without access to raw motor registers or microcontroller buses, enforcing strict interface decoupling.
+  \item \textbf{Perception, Speech, and Foundation AI (WP-CS5):} The perception pipeline performs point cloud filtering, plane extraction, and Euclidean cluster extraction for tabletop object segmentation. Real-time automatic speech recognition is performed locally using an optimized INT8 quantized Whisper model. For autonomous manipulation, the OpenVLA foundation model~\cite{openvla} processes head camera RGB frames and natural language instructions to predict 7-DoF end-effector delta action sequences.
+  \item \textbf{Web Teleoperation Dashboard (WP-CS6):} A responsive web application developed in React communicates with ROS~2 via \texttt{rosbridge\_suite} WebSockets. Low-latency H.264 video streams from the RealSense camera are relayed via WebRTC, enabling real-time remote monitoring, emergency stop triggering, and manual teleoperation.
+\end{itemize}
+
+\subsection{Cross-Domain Interface Management}
+In complex mechatronic systems, physical and operational failures predominantly manifest at domain boundaries. Rigorous cross-domain interface management is therefore essential to prevent integration bottlenecks.
+
+\subsubsection{Physical Mounting Standards}
+Mechanical interfaces across subsystems conform to established international robotics standards:
+\begin{itemize}[leftmargin=1.5em]
+  \item \textbf{End-Effector Flange:} Both wrist tool mounting plates adhere to the ISO~9409-1-50-4-M6 standard (50~mm pitch circle diameter, 4x M6 threaded holes, and $\varnothing 31.5\text{ mm}$ locating boss). This standardized interface permits rapid swapping between parallel-jaw grippers, suction cups, and custom inspection tools in under 5 minutes without mechanical redesign.
+  \item \textbf{Structural Assembly Fasteners:} All structural connections utilize metric grade 8.8 and 10.9 steel fasteners (DIN 912 socket head cap screws and DIN 7991 countersunk screws) engaging precision-machined threads in aluminum alloy plates or steel threaded inserts (Helicoil / PEM).
+  \item \textbf{Subsystem Quick-Disconnects:} The complete upper-body torso mounts to the mobile base chassis using an array of six M6 mounting bolts and two precision locating dowel pins (DIN 6325, $\varnothing 6\text{ mm}$ m6 tolerance), ensuring sub-$0.05\text{ mm}$ positional repeatability upon reassembly.
+\end{itemize}
+
+\subsubsection{Electrical Voltage Domains and Power Routing}
+To isolate high-energy motor commutation noise from sensitive logic and computing circuitry, the power architecture enforces four segregated voltage domains:
+\begin{enumerate}[leftmargin=1.5em]
+  \item \textbf{Raw Battery Bus ($24.0\text{--}29.2\text{V}$, High Power):} Supplies the CubeMars AK70-10 QDD motor drives (shoulder, elbow, waist) and the dual 100~W differential base drive motors. Protected by a 40~A main fuse and safety contactor.
+  \item \textbf{Regulated 19~V Domain ($19.0\text{V} \pm 1.5\%$, 4.0~A Continuous):} Dedicated exclusively to the NVIDIA Jetson Orin NX compute module, derived via an isolated synchronous buck converter.
+  \item \textbf{Regulated 12~V Domain ($12.0\text{V} \pm 2.0\%$, 6.0~A Continuous):} Powers the Feetech STS3215/STS3032 serial bus servos (wrists, grippers, pan/tilt head) and the Intel RealSense depth sensor.
+  \item \textbf{Regulated 5~V \& 3.3~V Domains (Low Power Logic):} Powers the Slamtec RPLiDAR, ReSpeaker microphone array, ESP32 microcontrollers, CAN transceivers, and digital sensor pull-ups.
+\end{enumerate}
+All subsystem grounds converge at a single central star-ground point located on the main power distribution board, mitigating ground potential differentials and eliminating closed ground loops.
+
+\subsubsection{Communication Protocols and Fieldbus Determinism}
+The communication architecture maps data flows to appropriate protocols based on required bandwidth and latency constraints:
+\begin{itemize}[leftmargin=1.5em]
+  \item \textbf{High-Speed Cognitive Bus (Gigabit Ethernet / USB 3.0):} Carries high-bandwidth sensory data (uncompressed $1280 \times 720$ @ 30~fps RGB-D video streams and raw point clouds) between the Intel RealSense camera and the NVIDIA Jetson Orin NX host.
+  \item \textbf{System Fieldbus (CAN 2.0B / TWAI):} Connects the Jetson compute host to the distributed ESP32 microcontrollers and CubeMars AK70-10 motor actuators at 1~Mbps. Motor setpoints and telemetry packets operate at a cyclic rate of 1~kHz with packet jitter constrained below $150\,\mu\text{s}$.
+  \item \textbf{Subsystem Device Serial Buses (Half-Duplex Asynchronous TTL):} Distributes position commands and reads position/temperature telemetry from the Feetech STS3215/STS3032 serial servos at 1~Mbps using custom multi-drop single-wire UART transceivers.
+  \item \textbf{Sensor Peripheral Buses (SPI / I2C / I2S):} Dedicated local buses connecting microcontrollers to peripheral sensors: SPI at 10~MHz for the BNO085 9-DoF IMU, I2S for high-fidelity digital audio input/output, and GPIO interrupt lines for hardware limit switches.
+\end{itemize}
+
+\subsubsection{Safety Interlocks and Fault Isolation}
+The platform enforces a layered safety architecture in compliance with ISO~13482 personal care robotics standards~\cite{iso13482}:
+\begin{itemize}[leftmargin=1.5em]
+  \item \textbf{Hardware Safety Interlock (Level 0):} A dual-channel, normally closed (NC) hardware emergency-stop loop connects the manual E-Stop pushbuttons (located on the torso shoulder and base rear) directly to the de-energizing coil of the main 40~A power contactor. Depressing the E-Stop physically severs battery power from all motor actuators within $\le 10\text{ ms}$. Crucially, the 19~V, 12~V, and 5~V logic rails remain fully energized, allowing the Jetson compute host and microcontrollers to maintain telemetry, capture event logs, and broadcast alarm states.
+  \item \textbf{Firmware Watchdog Interlock (Level 1):} Each ESP32 microcontroller executes a hardware watchdog timer and monitors continuous CAN communication heartbeats from the high-level host. If communication drops for longer than $50\text{ ms}$, the local firmware automatically commands motor zero-velocity braking and disables the PWM gate drives.
+  \item \textbf{Software Supervisory Interlock (Level 2):} The Task Port safety supervisor monitors Cartesian end-effector velocities, joint torque limits, and distance-to-human thresholds derived from the LiDAR and depth camera. In accordance with ISO~13482 collaborative speed and separation monitoring, the supervisor scales down platform transit speed ($v_{\text{base}} \le 0.3\text{ m/s}$) when obstacles are within $0.8\text{ m}$, and initiates a software-controlled deceleration stop if a collision trajectory is projected.
+\end{itemize}

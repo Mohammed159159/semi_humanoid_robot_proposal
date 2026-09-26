@@ -1,0 +1,106 @@
+\documentclass[10pt,a4paper]{article}
+
+% --- Page Geometry & Typography ---
+\usepackage[margin=2.2cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{graphicx}
+
+% --- Color Palette ---
+\usepackage{xcolor}
+\definecolor{navy}{HTML}{123047}
+\definecolor{teal}{HTML}{007C7A}
+\definecolor{sky}{HTML}{DCEFF1}
+\definecolor{orange}{HTML}{E67E22}
+\definecolor{pale}{HTML}{F4F6F7}
+
+% --- Tables & Arrays ---
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{longtable}
+\renewcommand{\arraystretch}{1.18}
+\newcolumntype{Y}{>{\raggedright\sloppy\arraybackslash}X}
+\newcolumntype{C}{>{\centering\sloppy\arraybackslash}X}
+
+% --- Mathematics & Symbols ---
+\usepackage{amsmath,amssymb}
+
+% --- Lists & Formatting ---
+\usepackage{enumitem}
+\setlength{\parindent}{1.2em}
+\setlength{\parskip}{0.25em}
+
+% --- TikZ & Diagrams ---
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc,fit,shapes.geometric,backgrounds,chains,decorations.pathreplacing}
+
+\tikzset{
+    block/.style={draw=teal, fill=sky!40, rounded corners=3pt, thick, align=center, font=\small, inner sep=6pt},
+    device/.style={draw=navy, fill=pale, rounded corners=3pt, thick, align=center, font=\small, inner sep=6pt},
+    subsystem/.style={draw=navy, fill=navy!5, rounded corners=4pt, dashed, thick, inner sep=10pt},
+    arrow/.style={-{Latex[length=2.5mm]}, thick, teal},
+    bus/.style={-{Latex[length=2.5mm]}, double, thick, navy},
+    power/.style={-{Latex[length=2.5mm]}, thick, orange, dashed},
+    cloud_node/.style={draw=navy, fill=white, rounded corners=10pt, align=center, font=\small},
+    decision/.style={diamond, draw=orange, fill=orange!15, align=center, font=\small, inner sep=2pt},
+    accent_box/.style={draw=orange, fill=orange!10, rounded corners=3pt, thick, align=center, font=\small, inner sep=6pt}
+}
+
+% --- Citations & Hyperlinks ---
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=navy,
+    citecolor=teal,
+    urlcolor=teal,
+    pdftitle={A Modular General-Purpose Semi-Humanoid Robotic Platform: Mechatronic System Design and Conceptual Architecture},
+    pdfauthor={Graduation Project Mechatronics Team}
+}
+
+\begin{document}
+
+% --- Header Block ---
+\begin{center}
+    {\color{navy}\LARGE\bfseries A Modular General-Purpose Semi-Humanoid Robotic Platform\par}
+    \vspace{0.4em}
+    {\color{teal}\Large\bfseries Mechatronic System Design and Conceptual Architecture\par}
+    \vspace{0.6em}
+    {\small Graduation Project Mechatronic Systems Engineering Report \quad|\quad September 2026\par}
+    \vspace{0.3em}
+    \rule{\textwidth}{0.8pt}
+\end{center}
+
+\vspace{0.5em}
+
+% --- Abstract & Keywords ---
+\begin{abstract}
+Semi-humanoid robotics unites the mobility of wheeled autonomous mobile robots (AMRs) with the dexterous reaching and manipulation capabilities of dual-arm anthropomorphic upper bodies. This report establishes the conceptual mechatronic system design and foundational architecture for a modular, general-purpose semi-humanoid robotic platform engineered in accordance with the VDI~2206 design methodology for mechatronic and cyber-physical systems. Grounded in standardized service robotics benchmarks (RoboCup@Home) and contemporary morphological analyses, the platform pairs a high-traction differential drive mobile base ($2$ active $200\text{ mm}$ rubber wheels + $2$ passive swivel casters) with a rigid structural mast torso (vertical reach envelope $500\text{--}1350\text{ mm}$; with an optional modular telescopic column analyzed and excluded from the baseline build), dual 6-DoF Quasi-Direct Drive (QDD) manipulators, compliant 2-finger parallel-jaw end effectors, and an expressive 2-DoF stereo-vision perception head, establishing an integrated kinematic chain of 18 active degrees of freedom. Crucially, the system formalizes a strict decoupling between hardware capability and application intent through a standardized Task Port abstraction layer. The report details the complete engineering requirements list (\emph{Anforderungsliste}), functional flow structures (material, energy, and information), hierarchical multi-rate software stack (from 1~kHz real-time fieldbuses to Vision-Language-Action embodied AI models), modular device-level subsystem decompositions, cross-domain engineering allocations, Bill of Materials (BOM) estimates, and a phased implementation roadmap.
+\end{abstract}
+
+\noindent\textbf{Keywords:} semi-humanoid robotics; mechatronic system design; VDI 2206; mobile manipulation; modular architecture; task port abstraction; Vision-Language-Action (VLA); ROS 2; differential drive.
+
+\vspace{0.8em}
+\tableofcontents
+\vspace{1.0em}
+\hrule
+\vspace{1.0em}
+
+% --- Modular Section Inputs ---
+\input{sections/01_introduction.tex}
+\input{sections/02_tasks_benchmarks.tex}
+\input{sections/03_requirements.tex}
+\input{sections/04_functional_structure.tex}
+\input{sections/05_system_architecture.tex}
+\input{sections/06_subsystems_detail.tex}
+\input{sections/07_domain_allocation.tex}
+\input{sections/08_bom_and_roadmap.tex}
+\input{sections/09_conclusion.tex}
+
+% --- Bibliography ---
+\bibliographystyle{ieeetr}
+\bibliography{references}
+
+\end{document}

@@ -1,0 +1,200 @@
+\section{Introduction and Methodological Framework}
+\label{sec:introduction}
+
+\subsection{Context and Motivation: The Spectrum of Robotic Automation}
+The contemporary landscape of robotics and autonomous systems exhibits a profound bifurcation between specialized, rigid industrial automation on one extreme and full bipedal humanoid platforms on the other. For decades, conventional industrial automation has achieved unmatched throughput, repeatability, and structural rigidity within highly structured manufacturing cells. However, these traditional manipulators and Automated Guided Vehicles (AGVs) rely strictly on engineered environmental fixtures, predictable workpieces, and physical safety fencing that isolates machinery from human workers. In unstructured, human-centric environments---such as domestic residences, eldercare and clinical facilities, research laboratories, and agile light-industrial logistics hubs---such fixed automation is fundamentally non-viable due to its complete inability to adapt to geometric uncertainties, variable lighting, dynamic obstacles, and unexpected physical contact.
+
+Conversely, the robotics research community and emerging commercial ventures have increasingly pursued full bipedal humanoids. While anthropomorphic bipedal morphologies represent the theoretical ideal for traversing arbitrary human architectural features (such as multi-flight staircases and narrow step-overs), they introduce formidable mechatronic penalties:
+\begin{enumerate}[leftmargin=1.5em]
+  \item \textbf{High Dynamic Instability and Fall Hazards:} Bipedal locomotion is inherently underactuated and governed by non-linear inverted-pendulum dynamics. Maintaining dynamic balance in populated or cluttered environments presents severe risks; a catastrophic loss of balance results in high-energy kinetic impacts that jeopardize human safety and inflict severe structural damage upon the robot itself.
+  \item \textbf{Excessive Energetic Overhead:} Bipedal systems consume substantial electrical power merely to maintain static equilibrium and vertical posture against gravitational acceleration ($\sim 200\text{--}500\text{ W}$ baseline quiescent draw), drastically curtailing battery endurance down to $1.0\text{--}2.0\text{ hours}$ under continuous operation.
+  \item \textbf{Actuator Complexity and Thermal Limitations:} High-torque-density actuators required for explosive leg dynamics generate extreme internal thermal flux, requiring complex liquid or active convective cooling systems.
+  \item \textbf{Prohibitive Cost and Maintenance Overhead:} Capital expenditure for research-grade bipedal platforms typically exceeds $\$100{,}000\text{--}\$250{,}000$, with fragile harmonic or planetary drivetrains that suffer frequent mechanical degradation during foot-ground impact events.
+\end{enumerate}
+
+To bridge this operational and economic chasm, semi-humanoid robotic platforms have emerged as a pragmatically superior architectural paradigm~\cite{stretch,mobilealoha,tiagopro,reachy2}. A semi-humanoid robot synthesizes the proven stability, energy efficiency, and high payload-to-weight ratio of a wheeled mobile base with the functional versatility and dexterity of an anthropomorphic upper body. By integrating a high-traction differential mobile base ($2$ active rubber wheels + $2$ passive swivel casters) with a rigid structural mast torso, dual articulated 6-Degree-of-Freedom (DoF) manipulators, compliant 2-finger parallel-jaw end effectors, and a sensorized 2-DoF pan-tilt perception head, semi-humanoids unlock natural human-scale spatial reaching ($500\text{--}1350\text{ mm}$ vertical reach envelope) and bimanual object manipulation across an integrated chain of 18 active degrees of freedom. Crucially, wheeled locomotion eliminates the threat of dynamic tipping during stationary manipulation, reduces energetic expenditure during idle co-presence to a nominal baseline, and provides a dependable, high-payload mobile foundation for long-horizon autonomous tasks.
+
+\subsection{The Semi-Humanoid Platform as a Cyber-Physical System for Industry 5.0}
+The conceptualization and embodiment of this semi-humanoid platform is directly aligned with the foundational principles of Industry~5.0. Whereas the preceding Industry~4.0 paradigm concentrated primarily on hyper-connectivity, end-to-end digitisation, continuous telemetry extraction, and automated ``lights-out'' productivity, Industry~5.0 places human-centricity, safe physical co-presence, environmental resilience, and sustainability at the core of technological development. 
+
+Under Industry~5.0, autonomous robots are no longer relegated to fenced enclosures or treated as isolated mechanical agents; rather, they serve as collaborative partners operating within shared workspaces alongside human operators. Within this framework, the semi-humanoid platform operates as a multi-tier Cyber-Physical System (CPS), defined by a seamless, bi-directional coupling between discrete computational algorithms and continuous physical domain dynamics:
+\begin{itemize}[leftmargin=1.5em]
+  \item \textbf{Physical Layer (Mechatronic Embodiment):} Comprises structural linkages, multi-axis Quasi-Direct Drive (QDD) actuators, high-capacity lithium energy storage, exteroceptive multimodal sensors (3D LiDAR, RGB-D vision, microphone arrays), and proprioceptive feedback elements (optical encoders, motor phase current sensors, multi-axis force-torque transducers).
+  \item \textbf{Cyber Layer (Embedded \& Cognitive Stack):} Comprises distributed real-time microcontrollers executing closed-loop fieldbus control at $1\text{ kHz}$, heterogeneous System-on-Chip (SoC) edge computers hosting autonomous Simultaneous Localization and Mapping (SLAM), kinematic trajectory generation, behavior-tree execution, and embodied Vision-Language-Action (VLA) foundation models.
+  \item \textbf{Safe Co-Presence and Resilient Interaction:} Certified compliance with personal care robot safety mandates (specifically ISO~13482:2014~\cite{iso13482}), governed by deterministic hardware safety interlocks, contact force limitation ($F_{\text{contact}} \le 50\text{--}150\text{ N}$ depending on contact geometry), active software speed-and-separation monitoring, and transparent backdrivability to absorb unexpected kinetic disturbances without inflicting injury or sustaining mechanical damage.
+\end{itemize}
+
+\subsection{Methodological Framework: The VDI 2206 Standard}
+Developing an advanced multi-DoF mobile manipulator demands an integrated, concurrent engineering methodology. Traditional sequential development models---wherein mechanical structures are drafted in isolation, followed sequentially by electrical wiring, motor selection, and ad-hoc software patching---consistently induce structural resonance mismatches, thermal throttling, excessive parasitic mass, and communication bus saturation.
+
+To guarantee architectural coherence and eliminate domain interface mismatches, this project formally adopts the VDI~2206 design methodology (``Design Methodology for Mechatronic Systems and Cyber-Physical Systems'')~\cite{vdi2206}. The VDI~2206 framework structures development across two coupled operational scales: the overarching \emph{Macro V-Model} and the recurring \emph{Micro-Cycle of Problem Solving}.
+
+\begin{figure}[htbp]
+\centering
+\resizebox{0.93\textwidth}{!}{%
+\begin{tikzpicture}[scale=0.88, every node/.style={transform shape}]
+  % Macro V-Model Left Side (Top-Down)
+  \node[block, text width=4.5cm] (req) at (0, 4.5) {\textbf{Task Clarification \& Requirements List}\\\footnotesize (\emph{Anforderungsliste}: Fixed \& Range Reqs)};
+  \node[block, text width=4.5cm] (func) at (1.2, 2.7) {\textbf{Functional Structuring}\\\footnotesize (Material, Energy \& Info Flows)};
+  \node[block, text width=4.5cm] (concept) at (2.4, 0.9) {\textbf{Cross-Domain Conceptual Design}\\\footnotesize (Architecture, Kinematics \& Task Port)};
+
+  % Domain Specific Elaboration (Base of V)
+  \node[device, text width=2.4cm] (mech) at (3.5, -1.2) {\textbf{Mechanical}\\\footnotesize Chassis, Arms, Torso, Head};
+  \node[device, text width=2.4cm] (elec) at (6.3, -1.2) {\textbf{Electrical}\\\footnotesize Power Rails, BMS, Safety Contactor};
+  \node[device, text width=2.4cm] (ctrl) at (9.1, -1.2) {\textbf{Control}\\\footnotesize 1~kHz Fieldbus, QDD Inverters};
+  \node[device, text width=2.4cm] (soft) at (11.9, -1.2) {\textbf{Software}\\\footnotesize ROS 2, Nav2, MoveIt 2, VLA};
+
+  % Macro V-Model Right Side (Bottom-Up)
+  \node[block, text width=4.5cm] (subsys_int) at (13.0, 0.9) {\textbf{Subsystem Integration}\\\footnotesize (HIL Verification, SIL Simulation)};
+  \node[block, text width=4.5cm] (sys_int) at (14.2, 2.7) {\textbf{Cross-Domain System Integration}\\\footnotesize (Multi-Rate Bus, Safety Supervisory)};
+  \node[block, text width=4.5cm] (valid) at (15.4, 4.5) {\textbf{System Validation \& Benchmarks}\\\footnotesize (RoboCup@Home, ISO 13482, Task Port)};
+
+  % Connecting Arrows of the V
+  \draw[arrow] (req) -- (func);
+  \draw[arrow] (func) -- (concept);
+  \draw[arrow] (concept) -- (mech);
+  \draw[arrow] (concept) -- (elec);
+  \draw[arrow] (concept) -- (ctrl);
+  \draw[arrow] (concept) -- (soft);
+
+  \draw[arrow] (mech) -- (subsys_int);
+  \draw[arrow] (elec) -- (subsys_int);
+  \draw[arrow] (ctrl) -- (subsys_int);
+  \draw[arrow] (soft) -- (subsys_int);
+  \draw[arrow] (subsys_int) -- (sys_int);
+  \draw[arrow] (sys_int) -- (valid);
+
+  % Verification & Validation Cross-Links
+  \draw[bus, dashed] (concept) -- node[above, font=\footnotesize] {Verification of Properties} (subsys_int);
+  \draw[bus, dashed] (func) -- node[above, font=\footnotesize] {Functional Confirmation} (sys_int);
+  \draw[bus, dashed] (req) -- node[above, font=\footnotesize] {Validation against Baseline Specifications} (valid);
+
+  % Bounding box for V-model
+  \begin{scope}[on background layer]
+    \node[subsystem, fit=(req) (valid) (mech) (soft), label={[navy, font=\bfseries]above:VDI 2206 Macro V-Model for Mechatronic System Design}] {};
+  \end{scope}
+\end{tikzpicture}%
+}
+\caption{The VDI 2206 macro-level V-model adapted for the modular semi-humanoid platform, illustrating the descent from requirements formulation to domain-specific elaboration, followed by ascending multi-stage verification and validation.}
+\label{fig:vdi2206_vmodel}
+\end{figure}
+
+\subsubsection{The Macro V-Model}
+As illustrated in Figure~\ref{fig:vdi2206_vmodel}, the macro V-model coordinates the overall lifecycle across three primary phases:
+\begin{enumerate}[leftmargin=1.5em]
+  \item \textbf{Left Descending Branch (Specification \& Conceptual Design):} Begins with comprehensive task clarification and drafting a structured requirements list (\emph{Anforderungsliste}), dividing specifications into fixed requirements (\emph{Festforderungen}) and range requirements (\emph{Bereichsforderungen}). These specifications are abstracted into functional structures modeling conserved transport and transformation of \emph{material}, \emph{energy}, and \emph{information}. From these abstractions, cross-domain architectures and kinematics are synthesized.
+  \item \textbf{Base of the V-Model (Domain-Specific Concurrent Elaboration):} Development branches concurrently into mechanical structural design (FEA optimization, link geometry, drivetrain selection), electrical hardware design (power architecture, galvanic isolation, BMS), embedded control design (real-time motor commutation, fieldbus deterministic timing), and computer software development (ROS~2 nodes, kinematic solvers, behavior trees).
+  \item \textbf{Right Ascending Branch (Integration, Verification, and Validation):} Concurrently developed domain models and physical sub-assemblies are integrated hierarchically. Physical components undergo Software-in-the-Loop (SIL) simulation in high-fidelity physics engines, followed by Hardware-in-the-Loop (HIL) dynamometer testing, full mechatronic integration, and empirical validation against standardized benchmark scenarios.
+\end{enumerate}
+
+\subsubsection{The Recurring Problem-Solving Micro-Cycle}
+Operating recursively within every macro-phase of the V-model is the 6-stage VDI~2206 problem-solving micro-cycle. This systematic cognitive loop compels the engineering team to validate conceptual variants objectively before freezing interfaces:
+\begin{enumerate}[leftmargin=1.5em]
+  \item \textbf{Situation Analysis (\emph{Situationsanalyse}):} Rigorous audit of current boundary conditions, state-of-the-art benchmarks (e.g., RoboCup@Home, TIAGo Pro, Reachy 2), physical bottlenecks, and failure modes observed in existing platforms.
+  \item \textbf{Goal Formulation (\emph{Zielformulierung}):} Definition of unambiguous, quantitative target criteria (e.g., arm settling time $t_{\text{settling}} \le 0.4\text{ s}$, continuous payload $\ge 2.0\text{ kg}$, footprint $\le 540\text{ mm}$).
+  \item \textbf{Solution Synthesis (\emph{Synthese von L{\"o}sungen}):} Generation of multiple divergent morphological concepts without premature design lock-in (e.g., contrasting prismatic elevating torso columns against revolute waist pitch joints).
+  \item \textbf{Analysis and Evaluation (\emph{Analyse und Bewertung}):} Quantitative trade-off analysis utilizing multi-criteria decision matrices, kinematic simulation, static/dynamic FEA, and bus latency modeling.
+  \item \textbf{Decision (\emph{Entscheidung}):} Selection of the optimal concept based on engineering metrics, manufacturing feasibility, cost, and reliability.
+  \item \textbf{Planning (\emph{Planung}):} Structuring detailed work packages, defining physical/logical interface contracts, and scheduling verification milestones for the subsequent development cycle.
+\end{enumerate}
+
+\subsection{Core Mechatronic Dynamic Principles}
+High-performance mobile manipulation requires an uncompromising focus on structural mechanics and dynamic control bandwidth. Unlike static industrial manipulators anchored to rigid concrete foundations, a mobile manipulator operates atop a movable chassis with finite compliance at the wheel-ground contact interface. Rapid arm accelerations generate reaction forces and moments that can induce body sway, structural vibrations, and end-effector tracking errors.
+
+\subsubsection{Structural Natural Frequency and Resonance}
+To guarantee responsive, vibration-free motion during high-speed reaching and trajectory tracking, each actuated mechanical link and joint assembly is modeled to first order as an equivalent spring-mass-damper system. The undamped natural angular frequency $\omega_n$ of the joint assembly is governed by:
+\begin{equation}
+\omega_n = \sqrt{\frac{K}{M}}
+\label{eq:natural_frequency}
+\end{equation}
+where $K$ represents the aggregate mechanical stiffness of the drivetrain (incorporating gearbox torsional stiffness, bearing rigidity, and structural link flexure in $\text{N}\cdot\text{m/rad}$), and $M$ denotes the effective moving mass or reflected rotational inertia about the joint axis in $\text{kg}\cdot\text{m}^2$.
+
+\subsubsection{Settling Time and Operational Bandwidth}
+Following a rapid point-to-point repositioning step command, the settling time $t_{\text{settling}}$ (defined as the duration required for Cartesian oscillations to decay permanently within a specified $2\%$ error band) is approximated by:
+\begin{equation}
+t_{\text{settling}} \approx \frac{4}{\zeta \omega_n}
+\label{eq:settling_time}
+\end{equation}
+where $\zeta$ represents the effective damping ratio of the closed-loop joint assembly. For critically damped or moderately underdamped systems ($0.65 \le \zeta \le 0.85$), minimizing settling time directly demands maximizing the natural frequency $\omega_n$. Low natural frequencies ($\omega_n < 10\text{ Hz}$) result in prolonged structural ringing, severely throttling closed-loop control gains and slowing autonomous pick-and-place cycles.
+
+\subsubsection{Mass Minimization of Distal Links}
+Equation~\eqref{eq:natural_frequency} indicates that maximizing $\omega_n$ requires either increasing stiffness $K$ or decreasing moving inertia $M$. However, adding physical material to increase stiffness $K$ inherently increases mass $M$, often degrading performance.
+
+In articulated serial kinematic chains, the total kinetic energy and reflected inertia at proximal actuators are critically dependent on the spatial distribution of mass. By the parallel axis theorem and manipulator Jacobian inertia transformation, the effective inertia $I_{\text{reflected}, j}$ reflected across joint $j$ due to distal links $i > j$ scales quadratically with link reach:
+\begin{equation}
+I_{\text{reflected}, j} = \sum_{i=j}^{N} \left( I_i + m_i \mathbf{r}_{j,i}^T \mathbf{r}_{j,i} \right)
+\label{eq:reflected_inertia}
+\end{equation}
+where $m_i$ is the mass of link $i$, $I_i$ is its centroidal inertia tensor, and $\mathbf{r}_{j,i}$ is the position vector from joint axis $j$ to the center of mass of link $i$. 
+
+Consequently, minimizing the mass of distal components (such as wrist pitch/roll mechanisms and end-effector grippers) produces a quadratic-to-cubic reduction in reflected inertia at shoulder and elbow joints. This mass reduction shifts structural resonance well above the operational control bandwidth ($\omega_n \ge 25\text{--}35\text{ Hz}$), suppressing oscillations and permitting aggressive, high-bandwidth closed-loop trajectory tracking.
+
+\subsubsection{Structural Rigidity versus Compliance: The Quasi-Direct Drive Paradigm}
+A classical conflict in robotics engineering exists between structural rigidity and mechanical compliance:
+\begin{itemize}[leftmargin=1.5em]
+  \item \textbf{Rigid Actuation with High-Ratio Reductions ($N > 100:1$):} Utilizes multi-stage planetary or harmonic gearboxes to achieve high static holding torque in compact envelopes. However, reflected rotor inertia scales with the square of the gear ratio ($I_{\text{reflected}} = N^2 I_{\text{rotor}}$), resulting in massive mechanical impedance, extreme friction, non-linear backlash, and zero backdrivability. In collaborative environments, accidental physical collisions impart destructive shock loads directly onto the gear teeth, risking mechanical failure and causing severe human injury.
+  \item \textbf{Series Elastic Actuators (SEAs):} Introduce physical springs between the gearbox and the load to measure torque via deflection and provide passive impact absorption. However, the intentional introduction of mechanical compliance drastically limits control bandwidth, introduces low-frequency structural resonances ($\omega_n < 8\text{ Hz}$), and degrades high-speed Cartesian precision.
+  \item \textbf{Quasi-Direct Drive (QDD) Solution:} To reconcile these conflicting demands, our platform adopts Quasi-Direct Drive (QDD) actuators across the arm joints. QDD pairs high-torque-density, multi-pole brushless DC outrunner motors with single-stage, low-ratio planetary gearings ($1:6 \le N \le 1:10$). This low transmission ratio preserves ultra-low reflected inertia ($I_{\text{ref}} \sim 36\text{--}100 \times I_{\text{rotor}}$), delivers transparent mechanical backdrivability, absorbs physical impact shocks without gear stripping, and enables direct, high-fidelity joint torque estimation via motor phase current feedback:
+  \begin{equation}
+  \tau_{\text{joint}} \approx N \cdot K_\tau \cdot I_q
+  \label{eq:torque_current}
+  \end{equation}
+  where $K_\tau$ is the motor torque constant and $I_q$ is the quadrature field-oriented control (FOC) current. This allows the software stack to execute active impedance control, presenting soft, compliant virtual stiffness to human co-workers while maintaining high structural rigidity during autonomous manipulation.
+\end{itemize}
+
+\subsection{Core Architectural Philosophy: Separation of Capability from Intent}
+The central engineering thesis of this project is the rigorous separation of \emph{capability} (the physical robotic platform) from \emph{intent} (the downstream user application or embodied AI cognitive agent).
+
+Autonomous mobile manipulation robots deployed in service and research settings are overwhelmingly engineered as specialized, single-purpose devices: a rigid arm permanently attached to a custom chassis, driven by monolithic software where high-level task logic is entangled directly with motor PWM drivers and kinematics. When the target task changes, the entire system must be fundamentally redesigned.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[scale=0.9, every node/.style={transform shape}]
+  % Top Layer: Intent
+  \node[cloud_node, fill=orange!15, draw=orange, thick, text width=12cm] (intent) at (7, 5.0) {
+    \textbf{APPLICATION INTENT LAYER}\\\footnotesize
+    Autonomous Task Pipelines \quad|\quad Voice Natural Language Planner (Whisper / LLM) \quad|\quad VLA Foundation Models \quad|\quad Web Teleoperation Dashboard
+  };
+
+  % Abstraction Layer: Task Port
+  \node[block, fill=teal!20, draw=teal, very thick, text width=12cm] (taskport) at (7, 2.1) {
+    \textbf{STANDARDIZED TASK PORT ABSTRACTION LAYER}\\\footnotesize
+    Standardized ROS 2 Action Servers, Topics \& Services \quad|\quad Kinematic Feasibility \& Singularity Check \quad|\quad Deterministic Safety Supervisor
+  };
+
+  % Bottom Layer: Capability
+  \node[subsystem, fill=sky!30, draw=navy, thick, text width=12cm] (platform) at (7, -1.0) {
+    \textbf{PLATFORM CAPABILITY LAYER (THE MECHATRONIC SUBSTRATE)}\\\footnotesize
+    \begin{tabularx}{\textwidth}{CCCC}
+      \textbf{Differential Base} & \textbf{Fixed Mast Torso} & \textbf{Dual 6-DoF Arms + Grippers} & \textbf{Perception Head} \\
+      \scriptsize Differential Drive & \scriptsize Rigid Spine Assembly & \scriptsize Bimanual Manipulation & \scriptsize Active Pan-Tilt Gaze \\
+      \scriptsize ($SE(2)$ Navigation, 2 DoF) & \scriptsize ($500\text{--}1350\text{ mm}$ Envelope) & \scriptsize (12-DoF Arms + 2-DoF Grippers) & \scriptsize (2-DoF Neck / Stereo Audio)
+    \end{tabularx}
+  };
+
+  % Side gutters separate command flow from feedback and keep labels clear.
+  \draw[bus, orange] (intent.east) -- ++(1.0,0) |- node[pos=0.25, right, font=\scriptsize\bfseries, align=left] {High-level\\intent orders} (taskport.east);
+  \draw[bus, teal] (taskport.east) -- ++(1.8,0) |- node[pos=0.25, right, font=\scriptsize\bfseries, align=left] {Safe coordinated\\execution commands} (platform.east);
+  \draw[arrow, navy, dashed] (platform.west) -- ++(-1.8,0) |- node[pos=0.25, left, font=\scriptsize\bfseries, align=right] {Telemetry\\and fused state} (taskport.west);
+  \draw[arrow, navy, dashed] (taskport.west) -- ++(-1.0,0) |- node[pos=0.25, left, font=\scriptsize\bfseries, align=right] {Completion\\and alarms} (intent.west);
+\end{tikzpicture}
+\caption{The foundational architectural separation between application intent and platform capability mediated through the standardized Task Port abstraction layer.}
+\label{fig:separation_philosophy}
+\end{figure}
+
+This project establishes the exact opposite paradigm. The robotic platform is engineered as a general-purpose, modular mechatronic substrate that is completely agnostic to the specific downstream application. What the platform physically possesses---a high-traction differential mobile chassis that navigates collision-free, a rigid structural mast torso maintaining a $500\text{--}1350\text{ mm}$ ergonomic reaching envelope, dual 6-DoF QDD arms with compliant parallel-jaw grippers, and a sensorized 2-DoF pan-tilt head that tracks objects and human dialogue (establishing 18 active DoF total)---remains invariant.
+
+As diagrammed in Figure~\ref{fig:separation_philosophy}, the user or cognitive reasoning agent never accesses low-level joint motor drivers, fieldbus packet frames, or kinematic inversion matrices. Instead, all interaction occurs through a formal, standardized abstraction layer termed the \textbf{Task Port}. The application layer supplies \emph{intent} (e.g., ``Pick up the medication bottle from the kitchen counter and bring it to the dining table''), while the platform orchestrates \emph{capability}---autonomously handling perception, global path planning, collision-free inverse kinematics, multi-rate trajectory interpolation, and active contact safety.
+
+\subsection{Document Objectives and Outline}
+This document establishes the comprehensive mechatronic system design, architectural specifications, and engineering allocations for the proposed modular semi-humanoid robot. The remainder of this report is organized as follows:
+\begin{itemize}[leftmargin=1.5em]
+  \item Section~\ref{sec:tasks_benchmarks} grounds platform capabilities in empirical service robotics benchmarks (RoboCup@Home, World Robot Summit, ISO~13482), extracts architectural boundary constraints, conducts morphological benchmarking against contemporary platforms, and defines concrete validation tasks.
+  \item Section~\ref{sec:requirements} establishes the formal engineering requirements list (\emph{Anforderungsliste}) classifying constraints across geometry, kinematics, dynamics, electrical power, embedded control, and software.
+  \item Section~\ref{sec:functional_structure} details the formal functional structure through conserved material, energy, and information flow models.
+  \item Section~\ref{sec:system_architecture} delineates the multi-tier system architecture, real-time communication fieldbuses, safety supervisor, and the Task Port API.
+  \item Section~\ref{sec:subsystems_detail} executes device-level deep dives into each functional mechatronic subsystem (mobile base, torso, arms, head, HMI, and power).
+  \item Section~\ref{sec:domain_allocation} allocates multidisciplinary engineering tasks across mechanical, electrical, embedded firmware, and software domains.
+  \item Section~\ref{sec:bom_roadmap} details the preliminary Bill of Materials (BOM), budget allocation, and phased development roadmap.
+  \item Section~\ref{sec:conclusion} synthesizes key mechatronic architectural takeaways and establishes next steps toward physical embodiment and testing.
+\end{itemize}

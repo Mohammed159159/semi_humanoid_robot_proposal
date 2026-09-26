@@ -8,3 +8,10 @@
 - [x] Craft unified general literature review
 - [x] Craft unified software literature review
 - [x] Craft high-level design report
+- [ ] Finalized project description 
+	- [ ] Technical description
+	- [ ] Workflow
+		- [ ] Sub-teams with internal sprint planning
+		- [ ] Montly deliverables
+- [ ] Budget finalization
+- [ ] Detailed timeline with deliverables

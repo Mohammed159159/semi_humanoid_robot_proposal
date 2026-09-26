@@ -1,0 +1,326 @@
+\section{System Architecture and Multi-Rate Topology}
+\label{sec:system_architecture}
+
+\subsection{Architectural Philosophy: Decoupling Cognition from Determinism}
+In modern robotic manipulation, integrating high-capacity, probabilistic machine learning models---such as Vision-Language-Action (VLA) policies and Large Language Models (LLMs)---into physical embodied systems presents a fundamental architectural dilemma. Deep learning foundation models offer unprecedented open-world semantic reasoning and general-purpose affordance discovery~\cite{openvla,rtx}; however, their execution latencies are inherently stochastic ($100\text{--}300\text{ ms}$), their outputs are uncertified with respect to safety constraints, and their inferences are subject to out-of-distribution hallucinations. Conversely, the physical plant of a semi-humanoid robot demands deterministic, millisecond-level feedback loops to guarantee kinematic stability, collision avoidance, and non-destructive impedance control~\cite{ros2,moveit2}.
+
+To resolve this dichotomy, the system architecture of the proposed semi-humanoid platform is structured upon a strict separation between \emph{cognitive intent generation}, \emph{deterministic motion planning}, and \emph{hard real-time safety enforcement}. Guided by the VDI~2206 mechatronic systems engineering methodology~\cite{vdi2206}, the platform architecture enforces a strict hierarchical topology wherein non-deterministic AI models act exclusively as advisory goal proposers. Downstream middleware and embedded safety domains act as impenetrable supervisory barriers, validating, projecting, and bounding all motion commands prior to physical actuation.
+
+\subsection{Hierarchical Multi-Rate Execution Topology}
+\label{subsec:multi_rate_hierarchy}
+The computational and control architecture is organized into four distinct execution tiers operating at discrete update frequencies. Each tier possesses strict timing budgets, designated communication protocols, bounded jitter thresholds, and clearly delineated functional scopes, as summarized in Table~\ref{tab:multi_rate_tiers}.
+
+\begin{table}[ht]
+\centering\small
+\caption{Hierarchical multi-rate execution topology and timing budgets.}
+\label{tab:multi_rate_tiers}
+\begin{tabularx}{\textwidth}{@{}p{2.0cm}Xp{2.0cm}p{3.1cm}p{2.9cm}@{}}
+\toprule
+\textbf{Tier} & \textbf{Functional Scope \& Key Components} & \textbf{Rate / Jitter} & \textbf{Compute Domain} & \textbf{I/O \& Protocol} \\
+\midrule
+\textbf{Tier 1: Cognition \& HRI} &
+Whisper STT, VLA goal proposal (OpenVLA / $\pi_0$), semantic scene grounding, Web Dashboard telemetry streaming. &
+$5\text{--}10\text{ Hz}$ \newline ($\pm 50\text{ ms}$) &
+NVIDIA Jetson Orin NX (GPU Tensor Cores) &
+Shared Memory / Zero-Copy, WebRTC, WebSocket \\
+\addlinespace
+\textbf{Tier 2: Mission \& Planning} &
+BehaviorTree.CPP engine, Nav2 costmaps (MPPI/DWB), MoveIt~2 collision-free Cartesian trajectory generation. &
+$30\text{--}50\text{ Hz}$ \newline ($<5\text{ ms}$) &
+NVIDIA Jetson Orin NX (PREEMPT\_RT Linux Cores) &
+ROS~2 Action Servers \& Topics (Cyclone DDS) \\
+\addlinespace
+\textbf{Tier 3: Robot Integration} &
+\texttt{ros2\_control} manager, UKF state fusion (IMU + odometry), spline interpolation, Cartesian admittance. &
+$100\text{--}250\text{ Hz}$ \newline ($<1\text{ ms}$) &
+NVIDIA Jetson Orin NX (Pinned Real-Time Core) &
+micro-ROS / SocketCAN, USB-to-CAN Gateway \\
+\addlinespace
+\textbf{Tier 4: Safety \& Actuation} &
+Motor FOC current loops, encoder reading, 1~Mbps CAN commutation, hardware E-Stop, thermal/current limit watchdogs. &
+$500\text{--}1000\text{ Hz}$ \newline ($<50\ \mu\text{s}$) &
+Distributed MCUs (ESP32-WROOM-32 RTOS) &
+CAN 2.0B (TWAI), Half-Duplex TTL, Hardwired Loop \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsubsection{Tier 1: Cognition and Human-Robot Interaction (5--10 Hz)}
+Tier~1 executes non-deterministic, compute-intensive artificial intelligence workloads hosted on the 16~GB NVIDIA Jetson Orin NX edge system-on-chip (SoC). This layer processes multimodal sensory observations, including streaming RGB-D images from the Intel RealSense head camera, planar laser scans from the base LiDAR, and far-field audio captured by the ReSpeaker dual-microphone array.
+\begin{itemize}[leftmargin=1.5em]
+  \item \textbf{Speech and Dialogue Processing:} Far-field acoustic streams are pre-processed using beamforming, acoustic echo cancellation (AEC), and noise suppression before passing to an optimized Whisper-class automatic speech recognition (ASR) engine. The transcribed natural language prompt is parsed into semantic intent tokens.
+  \item \textbf{Vision-Language-Action (VLA) Inference:} Open-vocabulary visual grounding models identify target objects and spatial fixtures, while quantized VLA models (e.g., OpenVLA~\cite{openvla} or $\pi_0$) infer high-level end-effector affordance vectors. Because foundation model inference times fluctuate ($100\text{--}200\text{ ms}$), Tier~1 operates strictly asynchronously.
+  \item \textbf{Web Dashboard Telemetry:} Compressed video streams (via WebRTC) and state variables are served to external browser clients at $10\text{ Hz}$ via a lightweight WebSocket bridge (\texttt{rosbridge\_suite}).
+\end{itemize}
+Outputs from Tier~1 take the form of unverified spatial delta proposals $\Delta\mathbf{x}_{\text{AI}}$ or symbolic skill action requests dispatched to the Task Port gateway.
+
+\subsubsection{Tier 2: Mission Orchestration and Motion Planning (30--50 Hz)}
+Tier~2 coordinates the robot's autonomy pipeline, reconciling symbolic high-level tasks with geometric and spatial constraints. Running under Ubuntu 22.04 LTS with the PREEMPT\_RT real-time kernel patch on dedicated CPU cores, this tier enforces deterministic synchronization:
+\begin{itemize}[leftmargin=1.5em]
+  \item \textbf{Behavior Tree Orchestrator:} System mission states are governed by a reactive decision tree implemented in \texttt{BehaviorTree.CPP}~\cite{behaviortrees}. The tree maintains lifecycle states, validates skill preconditions, manages parallel execution of base transit and manipulator posture adjustments, and triggers explicit recovery branches upon anomalous conditions.
+  \item \textbf{Mobile Base Navigation (Nav2):} Autonomous base navigation is executed via the Nav2 framework~\cite{nav2}. Planar LiDAR scans and ultrasonic proximity readings populate rolling 2D costmaps. Global paths are computed using Smac 2D grid search, while local path tracking is maintained at $30\text{--}50\text{ Hz}$ using Model Predictive Path Integral (MPPI) or Dynamic Window Approach (DWB) controllers with adaptive deceleration zones.
+  \item \textbf{Dual-Arm Manipulation Planning (MoveIt 2):} Kinematic inversions, joint trajectory optimization, and collision avoidance are managed by MoveIt~2~\cite{moveit2}. The planning scene integrates geometric bounding representations of the mobile chassis, torso, and active 3D voxel representations of the environment. Trajectories are parameterized using jerk-limited quintic polynomial splines.
+\end{itemize}
+
+\subsubsection{Tier 3: Robot Integration and Middleware (100--250 Hz)}
+Tier~3 forms the real-time middleware abstraction layer, establishing a deterministic boundary between high-level ROS~2 nodes and low-level embedded hardware interfaces. Running on an isolated CPU core pinned with highest FIFO scheduling priority (\texttt{SCHED\_FIFO}, priority 90):
+\begin{itemize}[leftmargin=1.5em]
+  \item \textbf{\texttt{ros2\_control} Hardware Abstraction:} Centralizes joint-space resource claiming and controller lifecycle management. It translates high-level trajectory waypoints into cyclic joint position, velocity, and effort setpoints.
+  \item \textbf{Multi-Sensor State Fusion:} An Unscented Kalman Filter (UKF) fuses wheel encoder odometry, torso orientation data from the BNO085 9-DOF IMU, and 2D scan-matching odometry to generate a high-frequency, drift-resistant state estimate ($SE(3)$ base and link poses) at $200\text{ Hz}$.
+  \item \textbf{Trajectory Interpolation and Admittance Regulation:} Converts $50\text{ Hz}$ planner waypoints into smooth $200\text{ Hz}$ reference profiles via cubic Hermite splines. In contact-rich manipulation tasks, a Cartesian admittance filter modulates reference trajectories based on motor phase-current feedback:
+  \begin{equation}
+    \mathbf{M}_d (\ddot{\mathbf{x}}_d - \ddot{\mathbf{x}}_r) + \mathbf{D}_d (\dot{\mathbf{x}}_d - \dot{\mathbf{x}}_r) + \mathbf{K}_d (\mathbf{x}_d - \mathbf{x}_r) = \mathbf{F}_{\text{ext}},
+    \label{eq:admittance_filter}
+  \end{equation}
+  where $\mathbf{M}_d, \mathbf{D}_d, \mathbf{K}_d$ represent the desired virtual inertia, damping, and stiffness matrices, and $\mathbf{F}_{\text{ext}}$ is the estimated contact wrench.
+\end{itemize}
+
+\subsubsection{Tier 4: Safety and Embedded Actuation (500--1000 Hz)}
+Tier~4 resides entirely within bare-metal and real-time firmware executing on distributed Espressif ESP32-WROOM-32 microcontrollers and the integrated Field-Oriented Control (FOC) drivers of the CubeMars AK70-10 Quasi-Direct Drive (QDD) actuators.
+\begin{itemize}[leftmargin=1.5em]
+  \item \textbf{Deterministic Fieldbus Execution:} Operates on a synchronous $1\text{ ms}$ cycle ($1000\text{ Hz}$) across a 1~Mbps Controller Area Network (CAN 2.0B / TWAI) and a high-speed half-duplex TTL bus ($1\text{ Mbps}$). The ESP32 coordinators broadcast cyclic torque setpoints and gather 14-bit absolute encoder feedback.
+  \item \textbf{Local Commutation and Current Regulation:} The internal FOC drivers of the AK70-10 actuators close current and velocity loops natively at up to $20\text{ kHz}$, clamping motor phase currents to safe thermal envelopes.
+  \item \textbf{Hardware Safety Interlocks and Watchdogs:} Dedicated FreeRTOS tasks execute hardware watchdog resets, check fieldbus packet continuity, monitor motor temperatures ($T_{\text{winding}} < 80^\circ\text{C}$), and monitor the hardwired Emergency Stop (E-Stop) loop. Upon bus packet dropout exceeding $10\text{ ms}$ or E-Stop assertion, firmware triggers dynamic regenerative braking and contactor isolation.
+\end{itemize}
+
+\subsection{Mathematical Formulation of the Command Contract and Safety Projection}
+\label{subsec:command_contract}
+To guarantee operational safety without compromising cognitive adaptability, all commands flowing from Tier~1 and Tier~2 into Tier~3 must satisfy a formal \emph{Command Contract}. Let the operational state of the robotic platform at time $t$ be represented by the generalized state vector $\mathbf{x}(t) \in \mathcal{X}$, where:
+\begin{equation}
+  \mathbf{x}(t) = \begin{bmatrix} \mathbf{p}_{\text{base}} \\ \theta_{\text{base}} \\ \mathbf{q}_{\text{arms}} \\ \mathbf{q}_{\text{grip}} \\ \mathbf{q}_{\text{head}} \end{bmatrix} \in SE(2) \times \mathbb{R}^{12} \times \mathbb{R}^2 \times \mathbb{R}^2,
+\end{equation}
+and let $\mathbf{q} \in \mathcal{Q} \subset \mathbb{R}^{18}$ denote the complete active degree-of-freedom configuration vector (2 base drive wheels + 12 arm joints + 2 parallel grippers + 2 pan-tilt head joints).
+
+When the cognitive VLA policy or external teleoperator dispatches an unconstrained configuration or Cartesian displacement delta $\Delta\mathbf{x}_{\text{AI}}$, this command cannot be directly committed to the actuator controllers. Instead, the admissible reference setpoint $\mathbf{x}_{\text{ref}}$ is computed via a constrained safety projection operator:
+\begin{equation}
+  \mathbf{x}_{\text{ref}} = \Pi_{\mathcal{F}(\mathbf{q}, \mathcal{E}, \mathcal{S})}\left(\mathbf{x} + \Delta\mathbf{x}_{\text{AI}}\right),
+  \label{eq:safety_projection}
+\end{equation}
+where $\mathcal{F}(\mathbf{q}, \mathcal{E}, \mathcal{S}) \subset \mathcal{X}$ defines the time-varying, closed and convex set of verified physically feasible and collision-free operational states. The projection operator $\Pi_{\mathcal{F}}$ is mathematically defined as the constrained quadratic optimization:
+\begin{equation}
+  \Pi_{\mathcal{F}}(\mathbf{y}) = \arg\min_{\mathbf{z} \in \mathcal{F}(\mathbf{q}, \mathcal{E}, \mathcal{S})} \frac{1}{2} \|\mathbf{z} - \mathbf{y}\|_{\mathbf{W}}^2 = \arg\min_{\mathbf{z} \in \mathcal{F}(\mathbf{q}, \mathcal{E}, \mathcal{S})} \frac{1}{2} (\mathbf{z} - \mathbf{y})^T \mathbf{W} (\mathbf{z} - \mathbf{y}),
+  \label{eq:projection_optimization}
+\end{equation}
+where $\mathbf{W} \in \mathbb{R}^{m \times m}$ is a symmetric positive-definite weighting matrix prioritizing structural components (e.g., heavily penalizing base tipping while permitting compliant arm deflections).
+
+\subsubsection{Constrained Feasibility Set Formulation}
+The admissible manifold $\mathcal{F}(\mathbf{q}, \mathcal{E}, \mathcal{S})$ is formed by the intersection of four rigorous physical constraint sets:
+\begin{equation}
+  \mathcal{F}(\mathbf{q}, \mathcal{E}, \mathcal{S}) = \mathcal{C}_{\text{kin}} \cap \mathcal{C}_{\text{stab}} \cap \mathcal{C}_{\text{env}}(\mathcal{E}) \cap \mathcal{C}_{\text{safe}}(\mathcal{S}).
+  \label{eq:feasibility_intersection}
+\end{equation}
+
+\begin{enumerate}[leftmargin=1.5em]
+  \item \textbf{Kinematic and Velocity Bounds ($\mathcal{C}_{\text{kin}}$):}
+  Enforces physical joint rotation limits, velocity saturation, and acceleration limits:
+  \begin{equation}
+    \mathcal{C}_{\text{kin}} = \left\{ \mathbf{x} = \mathbf{f}_{\text{kin}}(\mathbf{q}) \;\middle|\;
+    \begin{aligned}
+      \mathbf{q}_{\min} \le \mathbf{q} \le \mathbf{q}_{\max}, \\
+      -\dot{\mathbf{q}}_{\max} \le \mathbf{J}^{\dagger}(\mathbf{q}) \dot{\mathbf{x}} \le \dot{\mathbf{q}}_{\max}, \\
+      -\ddot{\mathbf{q}}_{\max} \le \ddot{\mathbf{q}} \le \ddot{\mathbf{q}}_{\max}
+    \end{aligned}
+    \right\},
+  \end{equation}
+  where $\mathbf{f}_{\text{kin}}(\cdot)$ denotes the forward kinematics mapping, $\mathbf{J}(\mathbf{q})$ is the geometric manipulator Jacobian, and $\mathbf{J}^{\dagger}$ is its Moore-Penrose pseudoinverse.
+
+  \item \textbf{Dynamic Base Stability and Center of Mass Envelope ($\mathcal{C}_{\text{stab}}$):}
+  To prevent chassis rollover during high-acceleration torso pitching or fast manipulator reaching with heavy payloads, the dynamic Zero-Moment Point (ZMP) $\mathbf{p}_{\text{ZMP}}$ must reside strictly within a contracted interior of the chassis support polygon $\mathcal{P}_{\text{support}}$ formed by the two 200~mm drive wheels and dual 100~mm casters:
+  \begin{equation}
+    \mathcal{C}_{\text{stab}} = \left\{ \mathbf{x} \;\middle|\; \mathbf{p}_{\text{ZMP}}(\mathbf{q}, \ddot{\mathbf{q}}, \mathbf{a}_{\text{base}}) \in \operatorname{int}_{\delta}\left(\mathcal{P}_{\text{support}}\right) \right\},
+  \end{equation}
+  where the planar ZMP is evaluated dynamically from the lumped mass distribution:
+  \begin{equation}
+    \mathbf{p}_{\text{ZMP}} = \frac{\sum_{i=1}^{N} m_i \left(\ddot{z}_i + g\right) \mathbf{r}_{i,xy} - \sum_{i=1}^{N} m_i \ddot{\mathbf{r}}_{i,xy} z_i}{\sum_{i=1}^{N} m_i \left(\ddot{z}_i + g\right)},
+  \end{equation}
+  with $m_i$ and $\mathbf{r}_i = [\mathbf{r}_{i,xy}^T, z_i]^T$ representing the mass and Cartesian position of link $i$, $g = 9.81\text{ m/s}^2$ the gravitational acceleration, and $\operatorname{int}_{\delta}(\cdot)$ denoting a conservative safety margin contraction of $\delta = 35\text{ mm}$ from the physical polygon boundary.
+
+  \item \textbf{Environmental Obstacle Clearance ($\mathcal{C}_{\text{env}}(\mathcal{E})$):}
+  Based on real-time 3D Signed Distance Fields (SDF) and 2D Nav2 local costmaps generated from the environment perception state $\mathcal{E}$, every rigid body link $\mathcal{B}_k(\mathbf{q})$ must maintain a positive distance margin from external obstacles $\mathcal{O}_{\text{env}}$:
+  \begin{equation}
+    \mathcal{C}_{\text{env}}(\mathcal{E}) = \left\{ \mathbf{x} \;\middle|\; \min_{k} \operatorname{dist}\left(\mathcal{B}_k(\mathbf{q}), \mathcal{O}_{\text{env}}\right) \ge d_{\text{safe}} \right\},
+  \end{equation}
+  where $d_{\text{safe}} = 0.05\text{ m}$ for static workspace fixtures and $d_{\text{safe}} = 0.25\text{ m}$ for dynamic human obstacles.
+
+  \item \textbf{Supervisory Safety State ($\mathcal{C}_{\text{safe}}(\mathcal{S})$):}
+  Governed by discrete safety system variables $\mathcal{S}$:
+  \begin{equation}
+    \mathcal{C}_{\text{safe}}(\mathcal{S}) = \left\{ \mathbf{x} \;\middle|\;
+    \begin{aligned}
+      &E_{\text{stop}} = \text{NORMAL}, \quad \text{SoC} \ge 10\%, \\
+      &T_{\text{actuator}} \le 80^\circ\text{C}, \quad \|\mathbf{F}_{\text{contact}}\| \le F_{\text{threshold}}
+    \end{aligned}
+    \right\}.
+  \end{equation}
+\end{enumerate}
+
+\subsubsection{Anomaly Recovery and Observable Veto Semantics}
+Crucially, when the projection operator $\Pi_{\mathcal{F}}$ clamps an AI proposal, or when numerical infeasibility occurs, the command is \emph{not} discarded silently. Let the projection residual be:
+\begin{equation}
+  \varepsilon_{\text{proj}} = \left\| \Pi_{\mathcal{F}(\mathbf{q}, \mathcal{E}, \mathcal{S})}\left(\mathbf{x} + \Delta\mathbf{x}_{\text{AI}}\right) - \left(\mathbf{x} + \Delta\mathbf{x}_{\text{AI}}\right) \right\|.
+\end{equation}
+If $\varepsilon_{\text{proj}} > \varepsilon_{\text{tol}}$ (where $\varepsilon_{\text{tol}} = 0.04\text{ m}$ in task space), Tier~3 immediately raises an observable \texttt{\small SafetyProjectionVeto} event over the ROS~2 middleware. This event halts downstream setpoint transmission, activates a smooth joint-space deceleration profile, and passes an execution failure signal to the Tier~2 \texttt{BehaviorTree.CPP} coordinator. The behavior tree responds by executing structured recovery nodes (e.g., retrying with an alternative grasp pose, repositioning the mobile base, or prompting the user via the Web Dashboard).
+
+\subsection{System-Level Mechatronic Interconnection Architecture}
+\label{subsec:mechatronic_interconnection}
+To guarantee electrical isolation, deterministic communication, and absolute human safety, the semi-humanoid platform is partitioned into four physically distinct interconnection networks:
+\begin{enumerate}[leftmargin=1.5em]
+  \item \textbf{Power Distribution Network:} Galvanically isolates high-noise inductive actuator loads from sensitive digital compute. A central 24V 20Ah LiFePO$_4$ battery pack feeds two branches:
+  \begin{itemize}
+    \item \emph{Protected Logic Rail (Uncuttable 24V):} Routed directly from the BMS through slow-blow fuses to high-efficiency synchronous DC-DC buck converters supplying regulated $19\text{V}$ (Jetson Orin NX), $12\text{V}$ (head servos and cooling fans), and $5\text{V}$ (ESP32 controllers, sensors, and logic).
+    \item \emph{Switched Motor Power Rail (Cuttable 24V):} Routed through a heavy-duty 24V 40A continuous safety contactor relay. This rail supplies the 9$\times$ CubeMars AK70-10 QDD actuators and the dual base BLDC drive motors.
+  \end{itemize}
+  \item \textbf{Deterministic Fieldbus Network (CAN 2.0B / TWAI at 1 Mbps):} A shared, high-speed differential bus interconnecting the Jetson compute host (via an isolated USB-to-CAN gateway) with the distributed ESP32 microcontrollers and the 9$\times$ AK70-10 QDD internal drivers. Employs 120\,$\Omega$ terminating resistors and shielded twisted-pair (STP) cabling.
+  \item \textbf{High-Bandwidth Perception and Telemetry Network:} High-speed point-to-point buses comprising Gigabit Ethernet (1000BASE-T) and USB~3.0/2.0 lines. Interconnects the Intel RealSense RGB-D camera, Slamtec RPLiDAR A1M8, ReSpeaker microphone array, Torso physical panel ports, and dual-band Wi-Fi~6 router.
+  \item \textbf{Hardwired Fail-Safe E-Stop Network:} An active-low, dual-channel physical loop connecting mechanical latching mushroom push-buttons (chassis-mounted and optional wireless tether) directly to the coil driver of the 40A safety contactor. Depressing an E-Stop button breaks coil power within $\le 10\text{ ms}$, physically cutting power to all high-torque actuators while maintaining complete power to compute, sensors, telemetry, and error logging.
+\end{enumerate}
+
+Figure~\ref{fig:mechatronic_block_diagram} depicts the system-level mechatronic block diagram, detailing the routing of all four independent physical networks across the platform subsystems.
+
+\begin{figure}[htbp]
+\centering
+\resizebox{\linewidth}{!}{%
+\begin{tikzpicture}[
+    node distance=0.55cm and 0.65cm,
+    >=Latex,
+    every node/.style={font=\scriptsize, align=center},
+    subsys_box/.style={draw=navy, fill=navy!4, rounded corners=4pt, dashed, thick, inner sep=6pt},
+    comp_compute/.style={draw=teal, fill=sky!60, rounded corners=3pt, thick, minimum width=2.4cm, minimum height=0.75cm},
+    comp_mcu/.style={draw=navy, fill=pale, rounded corners=3pt, thick, minimum width=2.2cm, minimum height=0.65cm},
+    comp_actuator/.style={draw=orange!80!black, fill=orange!15, rounded corners=3pt, thick, minimum width=2.2cm, minimum height=0.65cm},
+    comp_sensor/.style={draw=teal!70!black, fill=teal!10, rounded corners=3pt, thick, minimum width=2.2cm, minimum height=0.65cm},
+    comp_power/.style={draw=red!80!black, fill=red!10, rounded corners=3pt, thick, minimum width=2.2cm, minimum height=0.65cm},
+    net_pwr_cut/.style={draw=red!80!black, line width=1.4pt, dashed},
+    net_pwr_log/.style={draw=orange!90!black, line width=1.2pt},
+    net_can/.style={draw=teal, line width=1.3pt, double},
+    net_data/.style={draw=navy, line width=1.2pt},
+    net_estop/.style={draw=red!90!black, line width=1.5pt}
+]
+
+  % Subsystem 7: Central Compute
+  \node[comp_compute] (jetson) {\textbf{NVIDIA Jetson Orin NX}\\(16 GB Edge AI, PREEMPT\_RT)};
+  \node[comp_compute, right=0.6cm of jetson] (switch) {\textbf{GbE Switch \& Wi-Fi 6}\\(Bulkhead + Telemetry)};
+  \node[comp_mcu, below=0.35cm of jetson] (can_gw) {\textbf{USB-to-CAN Gateway}\\(Isolated Transceiver)};
+  \begin{scope}[on background layer]
+    \node[subsys_box, fit=(jetson) (switch) (can_gw), label={[navy, font=\bfseries\small]above:Subsystem 7: Central Compute \& Communications}] (box_s7) {};
+  \end{scope}
+
+  % Subsystem 5: Perception Head (Above Compute)
+  \node[comp_sensor, above=1.1cm of jetson] (cam_head) {\textbf{Intel RealSense RGB-D}\\(Stereo Depth + RGB)};
+  \node[comp_sensor, left=0.4cm of cam_head] (mic_head) {\textbf{ReSpeaker 2-Mic Array}\\+ 2W Speaker};
+  \node[comp_mcu, right=0.4cm of cam_head] (mcu_head) {\textbf{ESP32 Head Controller}\\(Custom Head PCB)};
+  \node[comp_actuator, above=0.35cm of mcu_head] (servo_head) {\textbf{2$\times$ Feetech STS3215}\\(Pan-Tilt Servos)};
+  \begin{scope}[on background layer]
+    \node[subsys_box, fit=(cam_head) (mic_head) (mcu_head) (servo_head), label={[navy, font=\bfseries\small]above:Subsystem 5: Active Perception Head \& Neck}] (box_s5) {};
+  \end{scope}
+
+  % Subsystem 8: HMI & Dashboard (Right of Compute)
+  \node[comp_compute, right=1.6cm of switch] (panel_hmi) {\textbf{Torso Physical Panel}\\(5--7'' Display, RJ45, USB3)};
+  \node[comp_compute, above=0.45cm of panel_hmi] (web_hmi) {\textbf{Browser Web Dashboard}\\(React, WebRTC, Joy-Teleop)};
+  \begin{scope}[on background layer]
+    \node[subsys_box, fit=(panel_hmi) (web_hmi), label={[navy, font=\bfseries\small]above:Subsystem 8: HMI \& Gateway}] (box_s8) {};
+  \end{scope}
+
+  % Subsystem 2: Torso (Below Compute)
+  \node[comp_actuator, below=1.2cm of can_gw] (ak_waist) {\textbf{CubeMars AK70-10}\\(Waist Tilt QDD)};
+  \node[comp_sensor, left=0.5cm of ak_waist] (imu_torso) {\textbf{BNO085 9-DOF IMU}\\(Torso Orientation)};
+  \node[comp_mcu, right=0.5cm of ak_waist] (mcu_torso) {\textbf{ESP32 Torso Controller}\\(Custom Power/Waist PCB)};
+  \begin{scope}[on background layer]
+    \node[subsys_box, fit=(ak_waist) (imu_torso) (mcu_torso), label={[navy, font=\bfseries\small]below:Subsystem 2: Fixed Torso \& Spine Assembly}] (box_s2) {};
+  \end{scope}
+
+  % Subsystem 3: Left Arm (Left of Torso)
+  \node[comp_mcu, left=1.4cm of imu_torso] (mcu_arm_l) {\textbf{ESP32 Left Arm MCU}\\(Custom Arm PCB)};
+  \node[comp_actuator, above=0.35cm of mcu_arm_l] (qdd_arm_l) {\textbf{4$\times$ CubeMars AK70-10}\\(Shoulder \& Elbow)};
+  \node[comp_actuator, below=0.35cm of mcu_arm_l] (wrist_arm_l) {\textbf{2$\times$ Feetech STS3215}\\(Wrist Pitch/Roll)};
+  \node[comp_actuator, below=0.35cm of wrist_arm_l] (grip_l) {\textbf{Feetech STS3032}\\(Parallel Gripper)};
+  \begin{scope}[on background layer]
+    \node[subsys_box, fit=(mcu_arm_l) (qdd_arm_l) (wrist_arm_l) (grip_l), label={[navy, font=\bfseries\small]above:Subsystem 3: Left Arm \& Gripper}] (box_s3) {};
+  \end{scope}
+
+  % Subsystem 4: Right Arm (Right of Torso)
+  \node[comp_mcu, right=1.4cm of mcu_torso] (mcu_arm_r) {\textbf{ESP32 Right Arm MCU}\\(Custom Arm PCB)};
+  \node[comp_actuator, above=0.35cm of mcu_arm_r] (qdd_arm_r) {\textbf{4$\times$ CubeMars AK70-10}\\(Shoulder \& Elbow)};
+  \node[comp_actuator, below=0.35cm of mcu_arm_r] (wrist_arm_r) {\textbf{2$\times$ Feetech STS3215}\\(Wrist Pitch/Roll)};
+  \node[comp_actuator, below=0.35cm of wrist_arm_r] (grip_r) {\textbf{Feetech STS3032}\\(Parallel Gripper)};
+  \begin{scope}[on background layer]
+    \node[subsys_box, fit=(mcu_arm_r) (qdd_arm_r) (wrist_arm_r) (grip_r), label={[navy, font=\bfseries\small]above:Subsystem 4: Right Arm \& Gripper}] (box_s4) {};
+  \end{scope}
+
+  % Subsystem 6: Power Distribution & Safety Subsystem (Far Left Bottom)
+  \node[comp_power, below=2.6cm of box_s3] (batt) {\textbf{24V 20Ah LiFePO$_4$}\\\textbf{Battery Pack + BMS}};
+  \node[comp_power, right=0.5cm of batt] (contactor) {\textbf{40A Safety Contactor}\\(Switched Motor 24V)};
+  \node[comp_power, below=0.35cm of batt] (dcdc) {\textbf{Synchronous Buck Regulators}\\(19V Orin, 12V Servos, 5V Logic)};
+  \node[comp_power, right=0.5cm of dcdc] (estop_btn) {\textbf{Latching Mushroom E-Stop}\\(Chassis Dual-Channel)};
+  \begin{scope}[on background layer]
+    \node[subsys_box, fit=(batt) (contactor) (dcdc) (estop_btn), label={[navy, font=\bfseries\small]above:Subsystem 6: Power Distribution \& Safety}] (box_s6) {};
+  \end{scope}
+
+  % Subsystem 1: Mobile Base Device (Right Bottom)
+  \node[comp_mcu, below=2.6cm of box_s2] (mcu_base) {\textbf{ESP32 Base MCU}\\(Custom Base Driver PCB)};
+  \node[comp_actuator, right=0.6cm of mcu_base] (motors_base) {\textbf{2$\times$ 100W BLDC Motors}\\+ 200 mm Wheels + Encoders};
+  \node[comp_sensor, below=0.35cm of mcu_base] (lidar_base) {\textbf{Slamtec RPLiDAR A1M8}\\(360$^\circ$ 2D Laser)};
+  \node[comp_sensor, right=0.6cm of lidar_base] (sonic_base) {\textbf{4$\times$ HC-SR04 Ultrasonics}\\(Perimeter Blind Spots)};
+  \begin{scope}[on background layer]
+    \node[subsys_box, fit=(mcu_base) (motors_base) (lidar_base) (sonic_base), label={[navy, font=\bfseries\small]above:Subsystem 1: Mobile Base Device}] (box_s1) {};
+  \end{scope}
+
+  % --- INTERCONNECTION LINES ---
+  % Route buses behind component cards so wiring cannot obscure labels.
+  \begin{scope}[on background layer]
+  % High-speed data (Navy solid)
+  \draw[net_data] (cam_head.south) -- ++(0,-0.2) -| node[pos=0.25, above, font=\tiny]{USB 3.0} (jetson.north);
+  \draw[net_data] (mic_head.south) -- ++(0,-0.3) -| node[pos=0.25, above, font=\tiny]{USB / I2S} ($(jetson.north)+(-0.6,0)$);
+  \draw[net_data] (lidar_base.north) -- ++(0,0.3) -| node[pos=0.25, below, font=\tiny]{USB 2.0} ($(jetson.south)+(-0.5,0)$);
+  \draw[net_data] (jetson.east) -- node[above, font=\tiny]{PCIe / USB} (switch.west);
+  \draw[net_data] (switch.east) -- node[above, font=\tiny]{GbE / USB 3.0} (panel_hmi.west);
+  \draw[net_data, dashed] (switch.north) |- node[pos=0.25, above, font=\tiny]{Wi-Fi 6 (WebRTC / ROS 2)} (web_hmi.west);
+
+  % CAN Fieldbus (Teal double line)
+  \draw[net_can] (can_gw.south) -- node[right, font=\tiny]{1 Mbps CAN} (ak_waist.north);
+  \draw[net_can] (ak_waist.east) -- (mcu_torso.west);
+  \draw[net_can] (can_gw.west) -| node[pos=0.2, above, font=\tiny]{CAN Bus} (mcu_arm_l.north);
+  \draw[net_can] (can_gw.east) -| node[pos=0.2, above, font=\tiny]{CAN Bus} (mcu_arm_r.north);
+  \draw[net_can] (mcu_arm_l.north) -- (qdd_arm_l.south);
+  \draw[net_can] (mcu_arm_r.north) -- (qdd_arm_r.south);
+  \draw[net_can] (ak_waist.south) -- ++(0,-0.4) -| node[pos=0.25, above, font=\tiny]{CAN Bus} (mcu_base.north);
+
+  % Half-duplex TTL serial chains (navy dashed)
+  \draw[net_data, densely dotted] (mcu_head.north) -- node[right, font=\tiny]{TTL} (servo_head.south);
+  \draw[net_data, densely dotted] (mcu_arm_l.south) -- (wrist_arm_l.north);
+  \draw[net_data, densely dotted] (wrist_arm_l.south) -- (grip_l.north);
+  \draw[net_data, densely dotted] (mcu_arm_r.south) -- (wrist_arm_r.north);
+  \draw[net_data, densely dotted] (wrist_arm_r.south) -- (grip_r.north);
+
+  % Power: Cuttable 24V (Red dashed)
+  \draw[net_pwr_cut] (batt.east) -- (contactor.west);
+  \draw[net_pwr_cut] (contactor.north) -- ++(0,0.8) -| node[pos=0.3, above, font=\tiny]{Cuttable 24V (Motors)} (qdd_arm_l.west);
+  \draw[net_pwr_cut] (contactor.north) -- ++(0,1.2) -| node[pos=0.4, above, font=\tiny]{Cuttable 24V} (ak_waist.south);
+  \draw[net_pwr_cut] (contactor.east) -- ++(0.6,0) |- node[pos=0.3, below, font=\tiny]{Cuttable 24V} (motors_base.west);
+
+  % Power: Protected Logic (Orange solid)
+  \draw[net_pwr_log] (batt.south) -- (dcdc.north);
+  \draw[net_pwr_log] (dcdc.east) -- ++(0.4,0) |- node[pos=0.35, below, font=\tiny]{5V Logic / 12V} (mcu_base.west);
+  \draw[net_pwr_log] (dcdc.north) -- ++(0,0.5) -| node[pos=0.25, above, font=\tiny]{19V / 5V} (jetson.west);
+
+  % E-Stop hardwired loop (Red solid thick)
+  \draw[net_estop] (estop_btn.north) -- node[right, font=\tiny]{Hardwired Interlock ($\le 10$ ms)} (contactor.south);
+
+  \end{scope}
+
+  % --- LEGEND ---
+  \node[draw=navy, fill=white, rounded corners=3pt, thick, below=0.7cm of box_s6, anchor=north west, inner sep=4pt] (legend) {
+    \begin{tabular}{@{}ll@{}}
+      \tikz\draw[net_pwr_cut] (0,0) -- (0.5,0); \quad \textbf{Cuttable 24V Motor Rail} (Contactor Switched) &
+      \tikz\draw[net_can] (0,0) -- (0.5,0); \quad \textbf{CAN Fieldbus (1 Mbps / TWAI)} \\
+      \tikz\draw[net_pwr_log] (0,0) -- (0.5,0); \quad \textbf{Protected Logic Rails (19V / 12V / 5V)} &
+      \tikz\draw[net_data] (0,0) -- (0.5,0); \quad \textbf{High-Speed Data (GbE / USB 3.0 / PCIe)} \\
+      \tikz\draw[net_estop] (0,0) -- (0.5,0); \quad \textbf{Hardwired E-Stop Safety Loop ($\le 10\text{ ms}$)} &
+      \tikz\draw[net_data, densely dotted] (0,0) -- (0.5,0); \quad \textbf{Half-Duplex Serial TTL (1 Mbps)} \\
+    \end{tabular}
+  };
+\end{tikzpicture}%
+}
+\caption{System-level mechatronic block diagram illustrating the four physically distinct interconnection networks: Switched Motor Power Rail, Protected Logic Power Rails, Deterministic CAN Fieldbus (1~Mbps), High-Speed Perception/Telemetry (GbE/USB~3.0), and the Hardwired Fail-Safe E-Stop Loop.}
+\label{fig:mechatronic_block_diagram}
+\end{figure}
