@@ -339,55 +339,306 @@ Applying VDI 2206 design methodologies alongside empirical service benchmarks an
 
 #### **Works cited**
 
-> 1. Lecture 2 and 3 \- VDI.pdf  
-> 2. VDI 2206.pdf  
-> 3. Lecture 01.pdf  
-> 4. Lecture 1 \- Mechatronic System Design Principles.pdf  
-> 5. TIAGo Pro | PAL Robotics, [https://pal-robotics.com/wp-content/uploads/2025/05/2025-Datasheet-TIAGo-Pro.pdf](https://pal-robotics.com/wp-content/uploads/2025/05/2025-Datasheet-TIAGo-Pro.pdf)  
-> 6. TIAGo hardware overview \- PAL OS 24.9 documentation, [https://docs.pal-robotics.com/sdk/24.09/hardware/tiago/hardware-overview.html](https://docs.pal-robotics.com/sdk/24.09/hardware/tiago/hardware-overview.html)  
-> 7. project\_overview.pdf  
-> 8. Jesus SAVAGE | Professor | Doctor of Philosophy \- ResearchGate, [https://www.researchgate.net/profile/Jesus-Savage](https://www.researchgate.net/profile/Jesus-Savage)  
-> 9. TIAGo Pro by PAL Robotics Specs & Review | OOB \- Origin of Bots, [https://www.originofbots.com/robot/tiago-pro-by-pal-robotics-details-specifications-rating](https://www.originofbots.com/robot/tiago-pro-by-pal-robotics-details-specifications-rating)  
-> 10. Competition Videos \- RoboCup@Home, [https://athome.robocup.org/2021-videos/](https://athome.robocup.org/2021-videos/)  
-> 11. TIAGo Pro \- Empowering Mobile Manipulation \- PAL Robotics, [https://pal-robotics.com/robot/tiago-pro/](https://pal-robotics.com/robot/tiago-pro/)  
-> 12. ROBOTIS Enters the Open-Source Humanoid Arena with "AI, [https://www.humanoidsdaily.com/news/robotis-enters-the-open-source-humanoid-arena-with-ai-sapiens-k0-platform](https://www.humanoidsdaily.com/news/robotis-enters-the-open-source-humanoid-arena-with-ai-sapiens-k0-platform)  
-> 13. Vdi 2206 \- PDFCOFFEE.COM, [https://pdfcoffee.com/vdi-2206-4-pdf-free.html](https://pdfcoffee.com/vdi-2206-4-pdf-free.html)  
-> 14. RoboCup@Home Rules and Regulations, [https://athome.robocup.org/wp-content/uploads/2018/10/2018\_rulebook.pdf](https://athome.robocup.org/wp-content/uploads/2018/10/2018_rulebook.pdf)  
-> 15. Development of RoboCup@Home Simulation towards Long-term, [http://www.sigverse.org/wiki/en/index.php?plugin=attach\&refer=Paper%20Lists\&openfile=RoboCupSymp2013.pdf](http://www.sigverse.org/wiki/en/index.php?plugin=attach&refer=Paper+Lists&openfile=RoboCupSymp2013.pdf)  
-> 16. RoboCup@Home: Analysis and Results of Evolving Competitions, [https://iris.uniroma1.it/retrieve/e383532b-a848-15e8-e053-a505fe0a3de9/Iocchi\_preprint\_RoboCup%40Home\_2015.pdf](https://iris.uniroma1.it/retrieve/e383532b-a848-15e8-e053-a505fe0a3de9/Iocchi_preprint_RoboCup%40Home_2015.pdf)  
-> 17. (PDF) Benchmarking Intelligent Service Robots through Scientific, [https://www.researchgate.net/publication/253650395\_Benchmarking\_Intelligent\_Service\_Robots\_through\_Scientific\_Competitions\_the\_RoboCupHome\_approach](https://www.researchgate.net/publication/253650395_Benchmarking_Intelligent_Service_Robots_through_Scientific_Competitions_the_RoboCupHome_approach)  
-> 18. RoboCupAtHome/gpsr\_command\_generator: Command generator, [https://github.com/RoboCupAtHome/gpsr\_command\_generator](https://github.com/RoboCupAtHome/gpsr_command_generator)  
-> 19. (PDF) Semantic reasoning in service robots using expert systems, [https://www.researchgate.net/publication/330730957\_Semantic\_reasoning\_in\_service\_robots\_using\_expert\_systems](https://www.researchgate.net/publication/330730957_Semantic_reasoning_in_service_robots_using_expert_systems)  
-> 20. (PDF) Rearrangement: A Challenge for Embodied AI \- ResearchGate, [https://www.researchgate.net/publication/345316601\_Rearrangement\_A\_Challenge\_for\_Embodied\_AI](https://www.researchgate.net/publication/345316601_Rearrangement_A_Challenge_for_Embodied_AI)  
-> 21. Demonstrating Everyday Manipulation Skills in RoboCup@Home, [https://www.ais.uni-bonn.de/papers/RAM\_2012\_Home.pdf](https://www.ais.uni-bonn.de/papers/RAM_2012_Home.pdf)  
-> 22. (PDF) A Contemporary Survey on Intelligent Human-Robot, [https://www.researchgate.net/publication/342720301\_A\_Contemporary\_Survey\_on\_Intelligent\_Human-Robot\_Interfaces\_Focused\_on\_Natural\_Language\_Processing](https://www.researchgate.net/publication/342720301_A_Contemporary_Survey_on_Intelligent_Human-Robot_Interfaces_Focused_on_Natural_Language_Processing)  
-> 23. A Collaborative Healthcare and Home Service and Assistant Robot, [https://pdfs.semanticscholar.org/a7c8/c3250a76375a49223ac9482fb1c5c0fcc60c.pdf](https://pdfs.semanticscholar.org/a7c8/c3250a76375a49223ac9482fb1c5c0fcc60c.pdf)  
-> 24. AhaRobot: A Low-Cost Open-Source Bimanual Mobile Manipulator, [https://arxiv.org/html/2503.10070v2](https://arxiv.org/html/2503.10070v2)  
-> 25. arXiv:2401.02117v1 \[cs.RO\] 4 Jan 2024, [https://arxiv.org/pdf/2401.02117](https://arxiv.org/pdf/2401.02117)  
-> 26. System Architecture for Low-Cost, GPU-Accelerated Bimanual, [https://arxiv.org/html/2603.09051v2](https://arxiv.org/html/2603.09051v2)  
-> 27. TIAGo Head: an AI Powered Platform for Social Robotics, [https://www.researchgate.net/publication/397228140\_TIAGo\_Head\_an\_AI\_Powered\_Platform\_for\_Social\_Robotics](https://www.researchgate.net/publication/397228140_TIAGo_Head_an_AI_Powered_Platform_for_Social_Robotics)  
-> 28. An Open-Source Holonomic Mobile Manipulator for Robot Learning, [https://raw.githubusercontent.com/mlresearch/v270/main/assets/wu25a/wu25a.pdf](https://raw.githubusercontent.com/mlresearch/v270/main/assets/wu25a/wu25a.pdf)  
-> 29. useful\_links.md  
-> 30. menloresearch/asimov-1 \- Open-Source Humanoid Robot \- GitHub, [https://github.com/menloresearch/asimov-1](https://github.com/menloresearch/asimov-1)  
-> 31. 38 Best Humanoid Robots in 2026 (Evidence-Ranked) \- Blog, [https://blog.robozaps.com/b/best-humanoid-robots](https://blog.robozaps.com/b/best-humanoid-robots)  
-> 32. HRI2023 \- Human-Robot Interaction, [https://humanrobotinteraction.org/2023/toc/index.html](https://humanrobotinteraction.org/2023/toc/index.html)  
-> 33. The Humanoid Open Source Robot Reachy 2 of Pollen Robotics, [https://xpert.digital/en/humanoid-open-source-robots/](https://xpert.digital/en/humanoid-open-source-robots/)  
-> 34. Reachy 2 \- Robot Harbour, [https://robotharbour.com/robot/reachy-2/](https://robotharbour.com/robot/reachy-2/)  
-> 35. Reachy2 Dual arms with mobile base Datasheet \- Pollen Robotics, [https://pollen-robotics.com/assets/reachy2/datasheets/reachy2-dual-arm-mobile-base.pdf](https://pollen-robotics.com/assets/reachy2/datasheets/reachy2-dual-arm-mobile-base.pdf)  
-> 36. Motors & Actuators specifications \- Reachy 2, [https://docs.pollen-robotics.com/hardware-guide/specifications/motors-actuators/](https://docs.pollen-robotics.com/hardware-guide/specifications/motors-actuators/)  
-> 37. Research Platforms \- Chironix, [https://chironix.com/robots/research-platforms/](https://chironix.com/robots/research-platforms/)  
-> 38. AGILEX MOBILE ALOHA ver.2 | 모바일매니플레이터 | 자율주행로봇, [https://wego-robotics.com/robot/AGILEX\_MOBILE\_ALOHA\_ver2\_detail.php](https://wego-robotics.com/robot/AGILEX_MOBILE_ALOHA_ver2_detail.php)  
-> 39. Development of an Autonomous Mobile Manipulator for Industrial, [https://www.politesi.polimi.it/retrieve/60b35cd7-fc91-47da-9139-99722300c063/2024\_07\_Giampa\_thesis.pdf](https://www.politesi.polimi.it/retrieve/60b35cd7-fc91-47da-9139-99722300c063/2024_07_Giampa_thesis.pdf)  
-> 40. Birdwave Market, [https://market.birdwave.io/](https://market.birdwave.io/)  
-> 41. Asimov 1: The \$20000 IKEA Humanoid for Robot Builders, [https://robohorizon.uk/en-gb/magazine/2026/08/asimov-1-the-20000-ikea-humanoid-for-robot-builders/](https://robohorizon.uk/en-gb/magazine/2026/08/asimov-1-the-20000-ikea-humanoid-for-robot-builders/)  
-> 42. Beyond the Kit: Asimov Details the 100-Hour Path to a Walking, [https://www.humanoidsdaily.com/news/beyond-the-kit-asimov-details-the-100-hour-path-to-a-walking-humanoid](https://www.humanoidsdaily.com/news/beyond-the-kit-asimov-details-the-100-hour-path-to-a-walking-humanoid)  
-> 43. How we built humanoid legs from the ground up in 100 days, [https://menlo.ai/research/humanoid-legs-100-days](https://menlo.ai/research/humanoid-legs-100-days)  
-> 44. Open-Source Humanoid Robots in 2025: A Practical Guide, [https://www.roboticscenter.ai/blog/open-source-humanoid-robots-2025](https://www.roboticscenter.ai/blog/open-source-humanoid-robots-2025)  
-> 45. Formatvorlage Dissertation ZeMA \- Universität des Saarlandes, [https://publikationen.sulb.uni-saarland.de/bitstream/20.500.11880/27366/1/Diss%20Wandlungsf%C3%A4hige%20und%20angepasste%20Automation%20in%20der%20Automobilmontage%20mittels%20durchg%C3%A4ngigem%20modularem%20Engineering.pdf](https://publikationen.sulb.uni-saarland.de/bitstream/20.500.11880/27366/1/Diss%20Wandlungsf%C3%A4hige%20und%20angepasste%20Automation%20in%20der%20Automobilmontage%20mittels%20durchg%C3%A4ngigem%20modularem%20Engineering.pdf)  
-> 46. Mirokaï by Enchanted Tools Specs & Review | OOB \- Origin of Bots, [https://www.originofbots.com/robot/miroka-by-enchanted-tools-details-specifications-rating](https://www.originofbots.com/robot/miroka-by-enchanted-tools-details-specifications-rating)  
-> 47. MechatronicswithExperiments2ndEditionbySabriCetinkunt-1.pdf  
-> 48. Learn – Robohub, [https://robohub.org/category/learn/feed/](https://robohub.org/category/learn/feed/)  
-> 49. Sample-Efficient Robot Skill Learning For Construction Tasks, [https://www.scribd.com/document/1015146710/2512-14031v1](https://www.scribd.com/document/1015146710/2512-14031v1)  
-> 50. Open X-Embodiment: Robotic Learning Datasets and RT-X Models, [https://robotics-transformer-x.github.io/](https://robotics-transformer-x.github.io/)  
-> 51. updates.md  
-> 52. OpenVLA: An Open-Source Vision-Language-Action Model, [https://openvla.github.io/](https://openvla.github.io/)
+### Annotated Reference Directory & Requirements Knowledge Base
+
+> **Citation Indexing Note:** All original citation identifiers `[1]` through `[52]` are strictly preserved to maintain full backward compatibility with in-text references (e.g., `[cite: 14, 18]`, `[cite: 23, 25]`). The 34 supplementary resources are indexed from `[53]` through `[86]`. For optimal engineering clarity, all 86 resources are organized into six domain-specific categories with concise annotations detailing their technical contributions and relevance to the robot's requirements.
+
+---
+
+### Category 1: Systems Engineering, Mechatronic Methodologies & Product Architecture
+
+Foundational engineering standards, cross-domain design methodologies (VDI 2206), function-to-structure synthesis, capability-based planning, and energy-sensitive development frameworks.
+
+- **[1] Lecture 2 and 3 - VDI.pdf**  
+  *Source / Reference:* Course lecture notes on VDI 2206 mechatronic development process, iterative macro/micro-cycles, and domain allocation (`material/mechatronic_principles/Lecture 2 and 3 - VDI.pdf`).  
+  *System Relevance:* Establishes the multidisciplinary V-model workflow spanning requirements specification, domain-specific elaboration, and continuous SIL/HIL verification.
+- **[2] VDI 2206.pdf**  
+  *Source / Reference:* Verein Deutscher Ingenieure (VDI), *VDI 2206: Design Methodology for Mechatronic Systems (Entwurfsmethodik für mechatronische Systeme)* (`material/mechatronic_principles/VDI 2206.pdf`).  
+  *System Relevance:* Core methodology governing the platform design loop; guides problem-solving micro-cycles (situation analysis $\to$ target formulation $\to$ solution synthesis) and Anforderungsliste formalization.
+- **[3] Lecture 01.pdf**  
+  *Source / Reference:* Lecture notes on fundamental mechatronic engineering concepts, interfaces, and system lifecycle engineering (`material/mechatronic_principles/Lecture 01.pdf`).  
+  *System Relevance:* Informs the holistic definition of the semi-humanoid platform as an integrated Cyber-Physical System (CPS).
+- **[4] Lecture 1 - Mechatronic System Design Principles.pdf**  
+  *Source / Reference:* Lecture notes on machine dynamics, joint compliance, structural rigidity, and natural frequency calculations (`material/mechatronic_principles/Lecture 1 - Mechatronic System Design Principles.pdf`).  
+  *System Relevance:* Provides mathematical foundations for link natural frequency ($\omega_n = \sqrt{K/M}$), damping ratios ($\zeta$), and settling time optimization ($t_{\text{settling}} \le 0.4\text{ s}$, Requirement D04).
+- **[13] VDI 2206 Reference Documentation**  
+  *Source / Reference:* [PDFCoffee VDI 2206 Archive](https://pdfcoffee.com/vdi-2206-4-pdf-free.html)  
+  *System Relevance:* Reference digital distribution of VDI 2206 guidelines for multidisciplinary validation and system integration.
+- **[45] Wandlungsfähige und angepasste Automation in der Automobilmontage mittels durchgängigem modularem Engineering**  
+  *Source / Reference:* ZeMA / Universität des Saarlandes Dissertation, [Document Link](https://publikationen.sulb.uni-saarland.de/bitstream/20.500.11880/27366/1/Diss%20Wandlungsf%C3%A4hige%20und%20angepasste%20Automation%20in%20der%20Automobilmontage%20mittels%20durchg%C3%A4ngigem%20modularem%20Engineering.pdf)  
+  *System Relevance:* Modular systems engineering methodology for reconfigurable automation cells, supporting rapid physical sub-assembly decoupling (Requirement M01).
+- **[47] Mechatronics with Experiments (2nd Edition)**  
+  *Source / Reference:* Sabri Cetinkunt, Wiley Textbook (`material/mechatronic_principles/MechatronicswithExperiments2ndEditionbySabriCetinkunt-1.pdf`).  
+  *System Relevance:* Applied engineering handbook for brushless DC motor drives, PWM gate timing, encoder quadrature decoding, and cascaded closed-loop fieldbus control (Requirement C01).
+- **[75] Herzog, Jan (2023) — Entwicklung einer fähigkeitsbasierten Planungsmethode zur Wiederverwendbarkeit von Anlagen**  
+  *Source / Reference:* Dissertation, Martin-Luther-Universität Halle-Wittenberg, [Repository Link](https://repo.bibliothek.uni-halle.de/bitstream/1981185920/113917/1/Herzog_Jan_Dissertation_2023.pdf) (DOI: 10.25673/111959).  
+  *System Relevance:* Formulates formal capability-based planning and modeling (Product, Process, Resource, Skill/Capability - PPRS), directly justifying the Task Port architecture that decouples physical capabilities from task-level application intent.
+- **[76] Reichel, Thomas; Rünger, Gudula; Steger, Daniel; Xu, Haibin (2010) — IT-Unterstützung zur energiesensitiven Produktentwicklung**  
+  *Source / Reference:* Chemnitzer Informatik-Berichte CSR-10-02, Fakultät für Informatik, Technische Universität Chemnitz, [Repository Copy](file:///home/mohany/Projects/gp/semi-humanoid-robot-proposal/material/mechatronic_principles/2010_Reichel_ITUnterstuetzungZurEnergiesens_Monarch.pdf) / [Local Downloads](file:///home/mohany/Downloads/2010_Reichel_ITUnterstuetzungZurEnergiesens_Monarch.pdf).  
+  *System Relevance:* Establishes computational methods for evaluating energy profiles during early-stage conceptual design, directly informing Section 4 Energy Flow modeling and battery runtime sizing (Requirements E01–E02).
+- **[77] VDI Zentrum Ressourceneffizienz (VDI ZRE) — Kurzanalyse Nr. 20: Ressourceneffizienz durch Maßnahmen in der Produktentwicklung**  
+  *Source / Reference:* VDI Technologiezentrum GmbH, [Report Link](https://www.ressource-deutschland.de/fileadmin/user_upload/1_Themen/h_Publikationen/Kurzanalysen/VDI-ZRE_Kurzanalyse_Nr._20_Produktentwicklung_bf.pdf).  
+  *System Relevance:* Details lightweighting measures, material reduction strategies, and modular component integration to minimize structural inertia and parasitic battery drain.
+- **[78] Gehrke, Matthias (2006) — Entwurf mechatronischer Systeme auf Basis von Funktionshierarchien und Systemstrukturen**  
+  *Source / Reference:* Dissertation, Heinz Nixdorf Institut, Universität Paderborn (s-lab), [PDF Link](https://web.cs.upb.de/archive/s-lab/fileadmin/Informatik/slab/veroeffentlichungen/2006_Entwurf_mechatronischer_Systeme_auf_Basis_von_Funktionshierarchien_und_Systemstrukturen.pdf).  
+  *System Relevance:* Directly underpins Section 4 by formalizing the derivation of functional hierarchies from requirements and their systematic mapping onto concrete physical system architectures (Funktions- und Systemstrukturen).
+- **[79] Leitfaden zur agilen, datenbasierten Produktentwicklung in der Windenergiebranche**  
+  *Source / Reference:* RWTH Aachen Lehrstuhl für Software Engineering (Rumpe et al.), [Publication Link](https://www.se-rwth.de/publications/Leitfaden-zur-agilen-datenbasierten-Produktentwicklung-in-der-Windenergiebranche.pdf).  
+  *System Relevance:* Provides procedural guidelines for integrating agile sprint cycles, continuous operational telemetry data, and model-based software engineering in complex mechatronic systems.
+- **[80] Plötner, Maik (2018) — Integriertes Vorgehen zur selbstindividualisierungsgerechten Produktstrukturplanung**  
+  *Source / Reference:* Dissertation, Technische Universität München (TUM), Fakultät für Maschinenwesen, [Dissertation Link](https://mediatum.ub.tum.de/doc/1355438/1355438.pdf).  
+  *System Relevance:* Formulates modular product architecture rules that support field-level modular customization, interchangeable end-effectors, and standardized mechanical interfaces (Requirement M01).
+
+---
+
+### Category 2: Benchmark Competitions, Operational Service Tasks & Manipulation In-The-Wild
+
+Empirical performance standards, international service robotics league rules (RoboCup@Home), manipulation benchmarking, and in-the-wild grasp strategies.
+
+- **[10] Competition Videos - RoboCup@Home**  
+  *Source / Reference:* [RoboCup@Home Video Archive](https://athome.robocup.org/2021-videos/)  
+  *System Relevance:* Provides qualitative behavioral benchmarks and failure mode demonstrations across GPSR, cleaning, and social interaction challenges.
+- **[14] RoboCup@Home Rules and Regulations (2018)**  
+  *Source / Reference:* RoboCup Federation, [Rulebook Link](https://athome.robocup.org/wp-content/uploads/2018/10/2018_rulebook.pdf)  
+  *System Relevance:* Foundational operational specification establishing doorway clearance constraints ($\ge 750\text{ mm}$, G03), standard table heights ($750\text{ mm}$), and safety protocol limits.
+- **[15] Development of RoboCup@Home Simulation towards Long-Term Service**  
+  *Source / Reference:* RoboCup Symposium Proceedings, [Paper Link](http://www.sigverse.org/wiki/en/index.php?plugin=attach&refer=Paper%20Lists&openfile=RoboCupSymp2013.pdf)  
+  *System Relevance:* Simulation methodologies for evaluating social navigation, persistent mapping, and human-robot interaction over extended temporal horizons.
+- **[16] RoboCup@Home: Analysis and Results of Evolving Competitions**  
+  *Source / Reference:* L. Iocchi et al., Artificial Intelligence, [Preprint Link](https://iris.uniroma1.it/retrieve/e383532b-a848-15e8-e053-a505fe0a3de9/Iocchi_preprint_RoboCup%40Home_2015.pdf)  
+  *System Relevance:* Longitudinal empirical study quantifying baseline success rates in SLAM navigation, speech parsing, and pick-and-place manipulation under competitive conditions.
+- **[17] Benchmarking Intelligent Service Robots through Scientific Competitions: The RoboCup@Home Approach**  
+  *Source / Reference:* ResearchGate Article, [Publication Link](https://www.researchgate.net/publication/253650395_Benchmarking_Intelligent_Service_Robots_through_Scientific_Competitions_the_RoboCupHome_approach)  
+  *System Relevance:* Establishes methodology for deriving reproducible engineering metrics from unstructured domestic service tasks.
+- **[18] RoboCupAtHome/gpsr_command_generator**  
+  *Source / Reference:* Official GitHub Repository, [Repository Link](https://github.com/RoboCupAtHome/gpsr_command_generator)  
+  *System Relevance:* Formal context-free grammar engine generating multi-tier randomized natural language action requests for GPSR Categories I, II, and III.
+- **[19] Semantic Reasoning in Service Robots Using Expert Systems**  
+  *Source / Reference:* ResearchGate Article, [Publication Link](https://www.researchgate.net/publication/330730957_Semantic_reasoning_in_service_robots_using_expert_systems)  
+  *System Relevance:* Informs high-level semantic task parsing, situational ambiguity resolution, and conversational clarification routines.
+- **[20] Rearrangement: A Challenge for Embodied AI**  
+  *Source / Reference:* D. Batra et al., ResearchGate, [Publication Link](https://www.researchgate.net/publication/345316601_Rearrangement_A_Challenge_for_Embodied_AI)  
+  *System Relevance:* Mathematical formalization of embodied physical rearrangement over the special Euclidean group $SE(3)$, defining workspace transformation from $s_0$ to $s^*$.
+- **[21] Demonstrating Everyday Manipulation Skills in RoboCup@Home**  
+  *Source / Reference:* J. Stückler et al., IEEE Robotics & Automation Magazine, [Paper Link](https://www.ais.uni-bonn.de/papers/RAM_2012_Home.pdf)  
+  *System Relevance:* Details physical implementation of table clearing, dishwasher rack loading, and door opening, establishing grasp span parameters ($20\text{--}85\text{ mm}$) and contact forces.
+- **[64] Business Insider — Complex Manipulation Tasks Demonstration**  
+  *Source / Reference:* Video Feature Report, [Media Link](https://www.facebook.com/businessinsider/posts/i-think-these-are-probably-the-most-complex-tasks-ever-being-performed-by-a-robo/1341100961221518/)  
+  *System Relevance:* Visual industry evidence demonstrating cutting-edge high-complexity manipulation, bimanual coordination, and dexterity thresholds in commercial deployments.
+- **[81] RoboCup 2019 International Symposium Program & Proceedings**  
+  *Source / Reference:* International RoboCup Federation (Sydney, Australia), [Program Link](https://2019.robocup.org/downloads/program/2019RCS-Program_v12.pdf)  
+  *System Relevance:* Outlines technical advances and benchmark revisions in mobile service robotics, deep learning perception pipelines, and autonomous manipulation.
+- **[82] RoboCup@Home Rules and Regulations (Foundational Rulebook 2009)**  
+  *Source / Reference:* University of Groningen Archive, [Rulebook Link](https://www.ai.rug.nl/robocupathome/documents/rulebook2009_DRAFT.pdf)  
+  *System Relevance:* Historical baseline defining early core benchmarks (Who-is-Who, Fetch & Carry, Open Challenge) that formed modern service robotics metrics.
+- **[85] Stückler, J.; Schwarz, M.; Schadler, M.; Topalidou-Kyniazopoulou, A.; Behnke, S. (2016) — Cognitive Service Robot Cosero**  
+  *Source / Reference:* Frontiers in Robotics and AI, [Article Link](https://www.frontiersin.org/journals/robotics-and-ai/articles/10.3389/frobt.2016.00058/full)  
+  *System Relevance:* Canonical mobile manipulator architecture featuring dual 7-DoF arms, an active torso lift, and an omnidirectional drive base; benchmarks tool use (bottle opening) and intuitive physical handover.
+- **[86] SHOPPER: Practical Insights on Grasp Strategies for Mobile Manipulation in the Wild (2025)**  
+  *Source / Reference:* arXiv:2504.12512 [cs.RO], [Paper Link](https://arxiv.org/html/2504.12512v2)  
+  *System Relevance:* Provides real-world empirical data on grasping strategies under dense clutter, multi-angle approach vectors, and payload stability across varying object geometries in supermarket and home settings.
+
+---
+
+### Category 3: Reference Mobile Manipulators, Humanoid Morphologies & Open Hardware
+
+State-of-the-art commercial and academic mobile manipulators, open-hardware bimanual platforms, kinematics, actuators, and computing architectures.
+
+- **[5] TIAGo Pro Datasheet (PAL Robotics, 2025)**  
+  *Source / Reference:* PAL Robotics Commercial Datasheet, [PDF Link](https://pal-robotics.com/wp-content/uploads/2025/05/2025-Datasheet-TIAGo-Pro.pdf)  
+  *System Relevance:* Primary benchmark for modular semi-humanoid architecture: Series Elastic Actuators, dual 7-DoF arms ($3.0\text{ kg}$ continuous payload), $350\text{ mm}$ prismatic lift, and 1 kHz EtherCAT fieldbus.
+- **[6] TIAGo Hardware Overview (PAL OS 24.9 Documentation)**  
+  *Source / Reference:* PAL Robotics Developer Portal, [Documentation Link](https://docs.pal-robotics.com/sdk/24.09/hardware/tiago/hardware-overview.html)  
+  *System Relevance:* Technical reference for onboard power management, safety contactor circuits, and heterogeneous compute allocation.
+- **[9] TIAGo Pro Specs & Technical Review**  
+  *Source / Reference:* Origin of Bots (OOB), [Review Link](https://www.originofbots.com/robot/tiago-pro-by-pal-robotics-details-specifications-rating)  
+  *System Relevance:* Engineering breakdown of mechanical degrees of freedom, reach envelope, and operational duty cycles.
+- **[11] TIAGo Pro — Empowering Mobile Manipulation**  
+  *Source / Reference:* PAL Robotics Platform Portal, [Product Link](https://pal-robotics.com/robot/tiago-pro/)  
+  *System Relevance:* Application cases for mobile manipulation, ROS 2 integration, and human-safe collaborative interaction.
+- **[12] ROBOTIS AI Sapiens K0 Platform**  
+  *Source / Reference:* Humanoids Daily News, [Article Link](https://www.humanoidsdaily.com/news/robotis-enters-the-open-source-humanoid-arena-with-ai-sapiens-k0-platform)  
+  *System Relevance:* Open-source humanoid research platform highlighting modular DYNAMIXEL smart actuators and distributed bus control.
+- **[24] AhaRobot: A Low-Cost Open-Source Bimanual Mobile Manipulator (2025)**  
+  *Source / Reference:* arXiv:2503.10070 [cs.RO], [Paper Link](https://arxiv.org/html/2503.10070v2)  
+  *System Relevance:* Architectural reference for low-cost bimanual mobile manipulation, open-source Bill of Materials, and accessible fabrication techniques.
+- **[25] Low-Cost Bimanual Mobile Manipulation (Mobile ALOHA)**  
+  *Source / Reference:* Stanford University / Zipeng Fu et al., [Preprint Link](https://arxiv.org/pdf/2401.02117)  
+  *System Relevance:* Reference platform coupling an AgileX Tracer differential base with dual ViperX arms; validates imitation learning for fine domestic tasks (cooking, wiping).
+- **[26] System Architecture for Low-Cost, GPU-Accelerated Bimanual Manipulation (2026)**  
+  *Source / Reference:* arXiv:2603.09051 [cs.RO], [Paper Link](https://arxiv.org/html/2603.09051v2)  
+  *System Relevance:* Informs edge GPU integration, multi-camera USB/Ethernet pipeline synchronization, and hard real-time motor thread isolation.
+- **[27] TIAGo Head: An AI Powered Platform for Social Robotics**  
+  *Source / Reference:* ResearchGate Publication, [Publication Link](https://www.researchgate.net/publication/397228140_TIAGo_Head_an_AI_Powered_Platform_for_Social_Robotics)  
+  *System Relevance:* 2-DoF active pan-tilt head kinematics, microphone array placement, and RGB-D sensor synchronization for natural gaze tracking (Requirement S02).
+- **[28] An Open-Source Holonomic Mobile Manipulator for Robot Learning**  
+  *Source / Reference:* CoRL / MLResearch Proceedings, [Paper Link](https://raw.githubusercontent.com/mlresearch/v270/main/assets/wu25a/wu25a.pdf)  
+  *System Relevance:* Evaluates omnidirectional Mecanum chassis dynamics during dynamic manipulation, demonstrating simplified Cartesian IK solving.
+- **[30] Asimov 1 Open-Source Humanoid Robot**  
+  *Source / Reference:* Menlo Research GitHub Repository, [Repository Link](https://github.com/menloresearch/asimov-1)  
+  *System Relevance:* Open-source hardware CAD and firmware; demonstrates Quasi-Direct Drive (QDD) actuators, 7075 aluminum CNC machining, and MJF PA12 nylon structural components.
+- **[33] The Humanoid Open Source Robot Reachy 2 of Pollen Robotics**  
+  *Source / Reference:* Xpert.digital Review, [Article Link](https://xpert.digital/en/humanoid-open-source-robots/)  
+  *System Relevance:* Architectural overview of Reachy 2's anthropomorphic upper body, Orbita spherical joint modules, and teleoperation control stacks.
+- **[34] Reachy 2 Technical Profile**  
+  *Source / Reference:* Robot Harbour, [Product Profile](https://robotharbour.com/robot/reachy-2/)  
+  *System Relevance:* Kinematic workspace boundaries, dual-arm horizontal reach ($1400\text{ mm}$), and $3.0\text{ kg}$ payload specifications.
+- **[35] Reachy 2 Dual Arms with Mobile Base Datasheet**  
+  *Source / Reference:* Pollen Robotics Technical Datasheet, [PDF Link](https://pollen-robotics.com/assets/reachy2/datasheets/reachy2-dual-arm-mobile-base.pdf)  
+  *System Relevance:* Engineering specifications for integrating Reachy 2's upper torso onto an omnidirectional wheeled base.
+- **[36] Motors & Actuators Specifications — Reachy 2**  
+  *Source / Reference:* Pollen Robotics Hardware Guide, [Documentation Link](https://docs.pollen-robotics.com/hardware-guide/specifications/motors-actuators/)  
+  *System Relevance:* Joint-level torque limits, brushless motor windings, gear reduction ratios, and thermal dissipation metrics.
+- **[37] Research Platforms Catalogue**  
+  *Source / Reference:* Chironix Robotics Portal, [Catalogue Link](https://chironix.com/robots/research-platforms/)  
+  *System Relevance:* Commercial distribution and integration reference for academic service robotics platforms.
+- **[38] AgileX Mobile ALOHA Ver. 2 Overview**  
+  *Source / Reference:* WeGo Robotics Commercial Specification, [Product Link](https://wego-robotics.com/robot/AGILEX_MOBILE_ALOHA_ver2_detail.php)  
+  *System Relevance:* Commercialized turnkey implementation of Mobile ALOHA featuring industrial PiPER arms and CAN bus architectures.
+- **[39] Development of an Autonomous Mobile Manipulator for Industrial Applications**  
+  *Source / Reference:* Andrea Giampà, Master's Thesis, Politecnico di Milano (2024), [Thesis Link](https://www.politesi.polimi.it/retrieve/60b35cd7-fc91-47da-9139-99722300c063/2024_07_Giampa_thesis.pdf)  
+  *System Relevance:* Detailed kinematic inversion algorithms, hardware-in-the-loop validation, and ROS 2 Nav2/MoveIt 2 configuration on mobile platforms.
+- **[41] Asimov 1: The $20,000 IKEA Humanoid for Robot Builders**  
+  *Source / Reference:* RoboHorizon Technical Review (2026), [Article Link](https://robohorizon.uk/en-gb/magazine/2026/08/asimov-1-the-20000-ikea-humanoid-for-robot-builders/)  
+  *System Relevance:* Detailed breakdown of modular flat-pack mechanical assembly, distributed CAN bus topology, and cost-optimized bill of materials.
+- **[42] Beyond the Kit: Asimov Details the 100-Hour Path to a Walking Humanoid**  
+  *Source / Reference:* Humanoids Daily Technical Feature, [Article Link](https://www.humanoidsdaily.com/news/beyond-the-kit-asimov-details-the-100-hour-path-to-a-walking-humanoid)  
+  *System Relevance:* Assembly timing, fabrication tolerances, and integration overhead analysis for open-source humanoid hardware.
+- **[43] How We Built Humanoid Legs from the Ground Up in 100 Days**  
+  *Source / Reference:* Menlo Research Engineering Blog, [Blog Link](https://menlo.ai/research/humanoid-legs-100-days)  
+  *System Relevance:* Quasi-Direct Drive (QDD) design methodologies, cycloidal/planetary gear comparisons, and structural finite element analysis.
+- **[44] Open-Source Humanoid Robots in 2025: A Practical Guide**  
+  *Source / Reference:* RoboticsCenter AI Guide, [Guide Link](https://www.roboticscenter.ai/blog/open-source-humanoid-robots-2025)  
+  *System Relevance:* Comparative technical survey evaluating accessible open-source humanoid and mobile manipulator frameworks.
+- **[46] Mirokaï by Enchanted Tools Specs & Review**  
+  *Source / Reference:* Origin of Bots (OOB), [Review Link](https://www.originofbots.com/robot/miroka-by-enchanted-tools-details-specifications-rating)  
+  *System Relevance:* Expressive social service robot with ball-based omnidirectional mobility, compact footprint, and specialized logistics grippers.
+- **[62] Intermediate 3D-Printable Robots — orobot.io**  
+  *Source / Reference:* orobot.io Repository, [Directory Link](https://orobot.io/robots/difficulty/intermediate)  
+  *System Relevance:* Database of intermediate-complexity 3D-printable robotic links, cycloidal gearheads, and compliant grippers for rapid physical prototyping.
+- **[63] YOR: Your Own Mobile Manipulator for Generalizable Robotics**  
+  *Source / Reference:* ResearchGate Technical Paper, [Publication Link](https://www.researchgate.net/publication/400705357_YOR_Your_Own_Mobile_Manipulator_for_Generalizable_Robotics)  
+  *System Relevance:* Open-architecture mobile manipulation platform designed for low-cost, generalizable policy learning, providing an accessible reference for modular arm and base integration.
+- **[65] Menlo Research Official Engineering Portal**  
+  *Source / Reference:* Menlo Research Portal, [Homepage Link](https://menlo.ai)  
+  *System Relevance:* Central repository for open-source CAD releases, firmware distributions, and hardware errata for the Asimov platform series.
+- **[84] Lucio at RoboCup@Home: An Open-Hardware Mobile Manipulator with Modular Software and On-Device LLM Planning**  
+  *Source / Reference:* IDOLL Research Technical Report, [Project Link](https://www.idoll.love/en/our-research/lucio-at-robocup-home)  
+  *System Relevance:* Highly relevant open-hardware mobile manipulator competing at RoboCup@Home, featuring modular structural design, ROS 2 software nodes, and on-device language-model task planning.
+
+---
+
+### Category 4: Embodied AI, Vision-Language-Action (VLA) & Machine Ethics
+
+Embodied artificial intelligence foundation models (RT-X, OpenVLA), training data infrastructure, policy execution bandwidth, and formal ethical/safety supervisory constraints.
+
+- **[22] A Contemporary Survey on Intelligent Human-Robot Interfaces Focused on NLP**  
+  *Source / Reference:* ResearchGate Survey, [Publication Link](https://www.researchgate.net/publication/342720301_A_Contemporary_Survey_on_Intelligent_Human-Robot_Interfaces_Focused_on_Natural_Language_Processing)  
+  *System Relevance:* Human-robot natural language interaction, dialogue management architectures, and intent recognition pipelines.
+- **[49] Sample-Efficient Robot Skill Learning For Construction Tasks**  
+  *Source / Reference:* Scribd Academic Document, [Document Link](https://www.scribd.com/document/1015146710/2512-14031v1)  
+  *System Relevance:* Sample-efficient reinforcement learning and imitation learning for contact-rich manipulation tasks.
+- **[50] Open X-Embodiment: Robotic Learning Datasets and RT-X Models**  
+  *Source / Reference:* Open X-Embodiment Collaboration, [Project Link](https://robotics-transformer-x.github.io/)  
+  *System Relevance:* Foundational cross-embodiment dataset aggregating over 1 million trajectories; underpins RT-1 and RT-2 Transformer policies.
+- **[52] OpenVLA: An Open-Source Vision-Language-Action Model**  
+  *Source / Reference:* OpenVLA Project / Stanford & UC Berkeley, [Project Link](https://openvla.github.io/)  
+  *System Relevance:* 7B-parameter open-source VLA model directly outputting 7-DoF end-effector control increments from RGB observations and natural language instructions.
+- **[55] Anderson, Michael; Leigh Anderson, Susan (Eds.) — Machine Ethics**  
+  *Source / Reference:* Cambridge University Press, [Book Link](https://dokumen.pub/machine-ethics-9780521112352-0521112354.html)  
+  *System Relevance:* Foundational text establishing formal mathematical and rule-based ethical constraints in autonomous decision-making agents; directly informs the Task Port safety supervisor rules for human-inhabited environments.
+- **[58] There's An AI For That — AI Tools for Robotics**  
+  *Source / Reference:* Aggregator Directory, [Platform Link](https://theresanaiforthat.com/task/robotics/)  
+  *System Relevance:* Curated tracking directory of generative AI tools, vision backbones, and simulation utilities applied to robotic perception and control.
+- **[61] There's An AI For That — AI Tools for Task Automation**  
+  *Source / Reference:* Aggregator Directory, [Platform Link](https://theresanaiforthat.com/task/task-automation/)  
+  *System Relevance:* Directory of autonomous task orchestration frameworks, workflow state machines, and API integration agents.
+- **[73] Vision-Language-Action in Robotics: A Survey of Datasets, Benchmarks, and Data Engines (2026)**  
+  *Source / Reference:* arXiv:2604.23001 [cs.RO], [Paper Link](https://arxiv.org/html/2604.23001v1)  
+  *System Relevance:* Authoritative 2026 survey synthesizing current VLA models, multi-modal demonstration datasets, real-to-sim validation loops, and data generation engines for physical manipulation.
+- **[74] What Vision-Language-Action Models Need from Training Data — Avala AI**  
+  *Source / Reference:* Avala AI Technical Report, [Article Link](https://avala.ai/news/vla-data-requirements-training-infrastructure)  
+  *System Relevance:* Outlines data infrastructure requirements for training VLA models, including multi-view visual tokenization, high-frequency proprioceptive trajectory logging, and latency considerations (Requirement A03).
+
+---
+
+### Category 5: Healthcare, Assistive Technologies & Collaborative Robotics
+
+Assistive manipulation primitives, human-robot physical collaboration standards (ISO/TS 15066), eldercare service robots, and clinical deployment requirements.
+
+- **[8] Jesus Savage — Autonomous Service Robotics & Human-Robot Interaction**  
+  *Source / Reference:* UNAM / RoboCup Trustee Profile, [ResearchGate Profile](https://www.researchgate.net/profile/Jesus-Savage)  
+  *System Relevance:* Research contributions in autonomous domestic navigation, cognitive service architectures, and competitive evaluation protocols.
+- **[23] CHARMIE: A Collaborative Healthcare and Home Service and Assistant Robot (Semantic Scholar)**  
+  *Source / Reference:* Semantic Scholar Publication, [PDF Link](https://pdfs.semanticscholar.org/a7c8/c3250a76375a49223ac9482fb1c5c0fcc60c.pdf)  
+  *System Relevance:* Architectural baseline for collaborative assistive robots operating in healthcare and domestic settings.
+- **[60] International Federation of Robotics (IFR) — STIHL Opens Up New Fields with Cobots**  
+  *Source / Reference:* IFR Case Study, [Report Link](https://ifr.org/case-studies/collaborative-robots/stihl-opens-up-new)  
+  *System Relevance:* Real-world collaborative robot implementation detailing physical safety enclosures, ISO collaborative speed limits, and ergonomic human-cobot handovers.
+- **[71] Assistive Technologies in Care and Rehabilitation**  
+  *Source / Reference:* MDPI Book Edition, [Book Link](https://mdpi-res.com/bookfiles/book/11830/Assistive_Technologies_in_Care_and_Rehabilitation.pdf?v=1787965968)  
+  *System Relevance:* Peer-reviewed compendium addressing assistive robotic kinematics, wheelchair-accessible manipulation, user physical safety, and ethical caregiving constraints.
+- **[72] Service Robots in the Healthcare Sector**  
+  *Source / Reference:* ResearchGate Systematic Review, [Publication Link](https://www.researchgate.net/publication/349976485_Service_Robots_in_the_Healthcare_Sector)  
+  *System Relevance:* Comprehensive analysis of service robots in hospital and eldercare environments; provides operational metrics for sanitization, navigation in crowded corridors, and delivery payloads.
+- **[83] Ribeiro, Tiago et al. — CHARMIE: Healthcare and Home Service Assistant Robot for Elderly Care**  
+  *Source / Reference:* ResearchGate Full Article, [Publication Link](https://www.researchgate.net/publication/353742553_CHARMIE_A_Collaborative_Healthcare_and_Home_Service_and_Assistant_Robot_for_Elderly_Care)  
+  *System Relevance:* Upgraded full peer-reviewed documentation of the CHARMIE platform [complements [cite: 23]]; details the torso lift mechanism, bimanual arm payloads, and real-world trials in domestic and eldercare facilities.
+
+---
+
+### Category 6: Market Intelligence, Directories, Technical Feeds & Infrastructure
+
+Industry market forecasts, hardware marketplace indices, commercial humanoid benchmarking, and open-source embedded software infrastructure.
+
+- **[7] project_overview.pdf**  
+  *Source / Reference:* Internal Proposal Specification, `reports/project_overview/project_overview.pdf`.  
+  *System Relevance:* Core scope document detailing baseline requirements, budget constraints, and project development milestones.
+- **[29] useful_links.md**  
+  *Source / Reference:* Repository Resource Index, [Local File](file:///home/mohany/Projects/gp/semi-humanoid-robot-proposal/material/useful_links.md).  
+  *System Relevance:* Internal repository directory cataloging robotics market analyses, robot datasheets, and open-source software libraries.
+- **[31] 38 Best Humanoid Robots in 2026 (Evidence-Ranked)**  
+  *Source / Reference:* Robozaps Market Report, [Report Link](https://blog.robozaps.com/b/best-humanoid-robots)  
+  *System Relevance:* Commercial benchmarking ranking contemporary humanoid and semi-humanoid systems across payload, autonomy, and market readiness.
+- **[32] HRI 2023 — Human-Robot Interaction Conference Proceedings**  
+  *Source / Reference:* ACM/IEEE HRI 2023, [Proceedings Link](https://humanrobotinteraction.org/2023/toc/index.html)  
+  *System Relevance:* Research papers on non-verbal communication, social distance maintenance, and multimodal human tracking.
+- **[40] Birdwave Market**  
+  *Source / Reference:* Birdwave Hardware Marketplace, [Market Link](https://market.birdwave.io/)  
+  *System Relevance:* Sourcing directory for smart servo actuators, brushless motors, harmonic drive gearboxes, and LiDAR sensors.
+- **[48] Learn – Robohub**  
+  *Source / Reference:* Robohub Educational Category Feed, [Feed Link](https://robohub.org/category/learn/feed/)  
+  *System Relevance:* Educational tutorials and engineering articles covering mechatronics, motion planning, and robot ethics.
+- **[51] updates.md**  
+  *Source / Reference:* Internal Milestone Tracker, `reports/detailed_project_description/updates.md`.  
+  *System Relevance:* Working development log detailing functional allocation across mechanical, electrical, and software engineering domains.
+- **[53] Robohub Main RSS Feed**  
+  *Source / Reference:* Robohub Syndicate Feed, [Feed Link](https://robohub.org/feed/)  
+  *System Relevance:* Continuous news feed tracking global robotics research breakthroughs, university lab releases, and industry partnerships.
+- **[54] Robohub Sensors RSS Feed**  
+  *Source / Reference:* Robohub Perception & Sensor Stream, [Feed Link](https://robohub.org/search/sensors/feed/rss2/)  
+  *System Relevance:* Continuous RSS feed monitoring developments in exteroceptive sensing, depth cameras, solid-state LiDAR, and tactile arrays (Requirement S01).
+- **[56] Petter Reinholdtsen Technical Blog (Entries Tagged English)**  
+  *Source / Reference:* Personal Technical Blog, [Blog Link](http://www.hungry.com/~pere/blog/tags/english/)  
+  *System Relevance:* Technical articles on Debian Linux system administration, real-time packaging, and deterministic network service configurations.
+- **[57] Review of 30+ Humanoid Robotics Companies: Who Will Prevail in 2026?**  
+  *Source / Reference:* PANews on Binance Square, [Article Link](https://www.binance.com/en/square/post/325008783702337)  
+  *System Relevance:* Broad market intelligence report profiling commercial humanoid ventures in 2026, comparing supply chain dependencies and commercial deployment viability.
+- **[59] Humanoid Observer**  
+  *Source / Reference:* Industry Publication Portal, [Portal Link](https://www.humanoidobserver.com)  
+  *System Relevance:* Dedicated trade publication tracking humanoid hardware unveilings, VC investments, and technical benchmarking.
+- **[66] Robot King — RoboHorizon Author Profile**  
+  *Source / Reference:* RoboHorizon Contributor Archive, [Author Link](https://robohorizon.uk/en-gb/authors/robot-king/)  
+  *System Relevance:* In-depth mechanical teardowns, actuator gear analysis, and engineering reviews of modern humanoid platforms.
+- **[67] Research Robots Directory — ui44**  
+  *Source / Reference:* ui44 Platform Catalogue, [Directory Link](https://ui44.com/categories/research)  
+  *System Relevance:* Comprehensive database indexing commercial research robots, mobile manipulators (Stretch, TIAGo), and academic testbeds.
+- **[68] Humanoid.guide Platform & Component Shop**  
+  *Source / Reference:* Commercial Guide, [Shop Link](https://humanoid.guide/shop/page/4/)  
+  *System Relevance:* Commercial aggregator tracking commercial pricing, specifications, and availability for humanoid robot platforms and actuators.
+- **[69] Humanoids Daily Editorial Directory**  
+  *Source / Reference:* Humanoids Daily Contributor Portal, [Editorial Link](https://www.humanoidsdaily.com/authors/default)  
+  *System Relevance:* Technical news stream covering embodied AI breakthroughs, humanoid locomotion, and dexterity demonstrations.
+- **[70] RoboHorizon Main Portal**  
+  *Source / Reference:* RoboHorizon Technical Magazine, [Portal Link](https://robohorizon.uk/en-gb/)  
+  *System Relevance:* Analytical magazine covering modern robotics engineering, embedded hardware topologies, and autonomous manipulation.
